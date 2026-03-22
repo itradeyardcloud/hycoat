@@ -17,9 +17,13 @@ const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 const CustomersPage = lazy(() => import('./pages/masters/CustomersPage'));
 const CustomerFormPage = lazy(() => import('./pages/masters/CustomerFormPage'));
 const SectionProfilesPage = lazy(() => import('./pages/masters/SectionProfilesPage'));
+const SectionProfileFormPage = lazy(() => import('./pages/masters/SectionProfileFormPage'));
 const PowderColorsPage = lazy(() => import('./pages/masters/PowderColorsPage'));
+const PowderColorFormPage = lazy(() => import('./pages/masters/PowderColorFormPage'));
 const VendorsPage = lazy(() => import('./pages/masters/VendorsPage'));
+const VendorFormPage = lazy(() => import('./pages/masters/VendorFormPage'));
 const ProcessTypesPage = lazy(() => import('./pages/masters/ProcessTypesPage'));
+const ProductionUnitsPage = lazy(() => import('./pages/masters/ProductionUnitsPage'));
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 
 // Sales
@@ -100,9 +104,16 @@ function App() {
               <Route path="/masters/customers/new" element={<CustomerFormPage />} />
               <Route path="/masters/customers/:id/edit" element={<CustomerFormPage />} />
               <Route path="/masters/section-profiles" element={<SectionProfilesPage />} />
+              <Route path="/masters/section-profiles/new" element={<SectionProfileFormPage />} />
+              <Route path="/masters/section-profiles/:id/edit" element={<SectionProfileFormPage />} />
               <Route path="/masters/powder-colors" element={<PowderColorsPage />} />
+              <Route path="/masters/powder-colors/new" element={<PowderColorFormPage />} />
+              <Route path="/masters/powder-colors/:id/edit" element={<PowderColorFormPage />} />
               <Route path="/masters/vendors" element={<VendorsPage />} />
+              <Route path="/masters/vendors/new" element={<VendorFormPage />} />
+              <Route path="/masters/vendors/:id/edit" element={<VendorFormPage />} />
               <Route path="/masters/process-types" element={<ProcessTypesPage />} />
+              <Route path="/masters/production-units" element={<ProductionUnitsPage />} />
             </Route>
 
             {/* Sales */}
