@@ -1,0 +1,389 @@
+# HyCoat Systems — Internal Operations ERP
+
+## Project Overview
+
+**Company:** HyCoat Systems — aluminum powder coating job-work company.
+Customers (extruders, fabricators) send raw aluminum sections/profiles. HyCoat applies surface treatment (powder coating, anodizing, wood effect, chromotizing, PVDF, mill finish) and returns finished material. Revenue is charged **per square foot** of coated area.
+
+**Application:** Internal operations ERP covering the full order cycle — Inquiry → Quotation → PI → Work Order → Material Inward → Production Planning → Production → Quality → Dispatch → Invoicing.
+
+**Public Website:** https://hycoatsystems.com/ (already built, separate from this app)
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Version |
+|---|---|---|
+| Backend Framework | ASP.NET Core | .NET 10 |
+| ORM | Entity Framework Core | 10.0.0 |
+| Database | SQL Server | Latest |
+| Frontend Framework | React | 18.x |
+| Build Tool | Vite | 5.x |
+| UI Component Library | Material UI (MUI) | 6.x |
+| Server State | TanStack React Query | 5.x |
+| Client State | Zustand | 5.x |
+| Forms | react-hook-form + zod | Latest |
+| Routing | react-router-dom | 7.x |
+| Charts | Recharts | 2.x |
+| Date Library | dayjs | Latest |
+| PDF Generation (server) | QuestPDF | Latest |
+| Real-time | SignalR | .NET 10 built-in |
+| PWA | vite-plugin-pwa (Workbox) | Latest |
+| Logging | Serilog | Latest |
+| Validation (API) | FluentValidation | Latest |
+| Mapping (API) | AutoMapper | Latest |
+
+---
+
+## Project Structure
+
+### Workspace Layout
+```
+d:\IProject\
+├── WORKFLOWS.md                          ← Business workflow reference (source of truth)
+├── hycoat-knowledge/
+│   ├── client-requirement.vtt            ← Original client discussion transcript
+│   ├── order-cycle-images/               ← Visual reference for document formats
+│   └── requirements/                     ← THIS FOLDER — feature specs
+├── hycoat-api/                           ← .NET 10 Web API
+└── hycoat-ui/                            ← React 18 + Vite frontend
+```
+
+### API Project Structure (Target)
+```
+hycoat-api/
+├── Program.cs
+├── appsettings.json
+├── hycoat-api.csproj
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── UsersController.cs
+│   ├── CustomersController.cs
+│   ├── ProfilesController.cs
+│   ├── PowderColorsController.cs
+│   ├── VendorsController.cs
+│   ├── ProcessTypesController.cs
+│   ├── ProductionUnitsController.cs
+│   ├── InquiriesController.cs
+│   ├── QuotationsController.cs
+│   ├── ProformaInvoicesController.cs
+│   ├── WorkOrdersController.cs
+│   ├── MaterialInwardsController.cs
+│   ├── IncomingInspectionsController.cs
+│   ├── ProductionWorkOrdersController.cs
+│   ├── ProductionSchedulesController.cs
+│   ├── PretreatmentLogsController.cs
+│   ├── ProductionLogsController.cs
+│   ├── InProcessInspectionsController.cs
+│   ├── FinalInspectionsController.cs
+│   ├── TestCertificatesController.cs
+│   ├── PackingListsController.cs
+│   ├── DeliveryChallansController.cs
+│   ├── InvoicesController.cs
+│   ├── PowderIndentsController.cs
+│   ├── PurchaseOrdersController.cs
+│   ├── GoodsReceivedNotesController.cs
+│   ├── DashboardController.cs
+│   ├── ReportsController.cs
+│   └── NotificationsController.cs
+├── Models/
+│   ├── Identity/          (User, Role entities)
+│   ├── Masters/           (Customer, SectionProfile, PowderColor, Vendor, ProcessType, ProductionUnit)
+│   ├── Sales/             (Inquiry, Quotation, ProformaInvoice, WorkOrder + line items)
+│   ├── MaterialInward/    (MaterialInward, IncomingInspection + line items)
+│   ├── Planning/          (ProductionWorkOrder, ProductionSchedule, ProductionTimeCalc)
+│   ├── Production/        (PretreatmentLog, ProductionLog, ProductionPhoto)
+│   ├── Quality/           (InProcessInspection, FinalInspection, TestCertificate, PanelTest)
+│   ├── Dispatch/          (PackingList, DeliveryChallan, Invoice + line items)
+│   ├── Purchase/          (PowderIndent, PurchaseOrder, GoodsReceivedNote, PowderStock)
+│   └── Common/            (BaseEntity, AuditLog, Notification, FileAttachment)
+├── DTOs/
+│   ├── Auth/
+│   ├── Masters/
+│   ├── Sales/
+│   ├── MaterialInward/
+│   ├── Planning/
+│   ├── Production/
+│   ├── Quality/
+│   ├── Dispatch/
+│   └── Purchase/
+├── Services/
+│   ├── AuthService.cs
+│   ├── AreaCalculationService.cs
+│   ├── PdfGenerationService.cs
+│   ├── FileStorageService.cs
+│   ├── EmailService.cs
+│   ├── NotificationService.cs
+│   └── NumberSequenceService.cs
+├── Data/
+│   ├── AppDbContext.cs
+│   └── Configurations/    (EF Fluent API configs per entity)
+├── Middleware/
+│   ├── ExceptionHandlingMiddleware.cs
+│   └── AuditLoggingMiddleware.cs
+├── Helpers/
+│   └── ClaimsHelper.cs
+├── Migrations/
+└── Properties/
+    └── launchSettings.json
+```
+
+### UI Project Structure (Target)
+```
+hycoat-ui/
+├── index.html
+├── package.json
+├── vite.config.js
+├── public/
+│   ├── manifest.json
+│   ├── icons/             (PWA icons: 192x192, 512x512)
+│   └── sw.js              (generated by vite-plugin-pwa)
+└── src/
+    ├── main.jsx
+    ├── App.jsx
+    ├── theme.js            (MUI theme with HyCoat branding)
+    ├── components/
+    │   ├── common/
+    │   │   ├── DataTable.jsx
+    │   │   ├── MobileCard.jsx
+    │   │   ├── FormField.jsx
+    │   │   ├── StatusBadge.jsx
+    │   │   ├── FileUpload.jsx
+    │   │   ├── PhotoCapture.jsx
+    │   │   ├── ConfirmDialog.jsx
+    │   │   ├── PageHeader.jsx
+    │   │   ├── EmptyState.jsx
+    │   │   └── LoadingScreen.jsx
+    │   └── layout/
+    │       ├── DashboardLayout.jsx
+    │       ├── AuthLayout.jsx
+    │       ├── Sidebar.jsx
+    │       ├── BottomNav.jsx
+    │       ├── Header.jsx
+    │       └── Breadcrumbs.jsx
+    ├── pages/
+    │   ├── auth/
+    │   ├── dashboard/
+    │   ├── masters/
+    │   ├── sales/
+    │   ├── material-inward/
+    │   ├── ppc/
+    │   ├── production/
+    │   ├── quality/
+    │   ├── dispatch/
+    │   ├── purchase/
+    │   ├── reports/
+    │   └── admin/
+    ├── hooks/
+    │   ├── useAuth.js
+    │   ├── useMasters.js
+    │   ├── useSales.js
+    │   ├── useMaterialInward.js
+    │   ├── usePPC.js
+    │   ├── useProduction.js
+    │   ├── useQuality.js
+    │   ├── useDispatch.js
+    │   ├── usePurchase.js
+    │   ├── useDashboard.js
+    │   └── useNotifications.js
+    ├── services/
+    │   ├── api.js           (axios instance with JWT interceptor)
+    │   ├── authApi.js
+    │   ├── mastersApi.js
+    │   ├── salesApi.js
+    │   ├── materialInwardApi.js
+    │   ├── ppcApi.js
+    │   ├── productionApi.js
+    │   ├── qualityApi.js
+    │   ├── dispatchApi.js
+    │   ├── purchaseApi.js
+    │   └── reportsApi.js
+    ├── stores/
+    │   ├── authStore.js
+    │   ├── uiStore.js
+    │   └── notificationStore.js
+    └── utils/
+        ├── areaCalculator.js
+        ├── formatters.js
+        ├── validators.js
+        └── constants.js
+```
+
+---
+
+## Namespace & Configuration
+
+- **API Namespace:** `HycoatApi` (rename from existing `DotnetApi`)
+- **API Root Namespace (csproj):** `HycoatApi`
+- **API Assembly Name:** `hycoat-api`
+- **DB Name:** `HycoatDb` (rename from `DotnetApiDb`)
+- **Connection String Key:** `DefaultConnection`
+- **API Base URL (dev):** `https://localhost:7001` / `http://localhost:5001`
+- **UI Dev URL:** `http://localhost:5173`
+- **JWT Settings Key:** `JwtSettings` in appsettings.json
+
+---
+
+## Authentication & Authorization
+
+### Role Hierarchy
+```
+Admin (full access to everything)
+  └── Leader (cross-department read + own department full CRUD)
+        └── Department User (own department read/write only)
+```
+
+### Departments
+- Sales
+- PPC (Production Planning, Controlling & Coordination)
+- SCM (Supply Chain Management / Stores)
+- Production
+- QA (Quality Lab)
+- Purchase
+- Finance (Accounts & Finance)
+
+### Auth Flow
+1. User logs in with email + password → receives JWT access token (15 min) + refresh token (7 days)
+2. Access token sent in `Authorization: Bearer <token>` header
+3. Refresh token stored in httpOnly cookie (or secure storage for PWA)
+4. Role + Department encoded as JWT claims
+5. API endpoints decorated with `[Authorize(Roles = "Admin,Leader")]` etc.
+6. UI uses role-based route guards and conditional rendering
+
+---
+
+## Common Coding Conventions
+
+### API Conventions
+- **One controller per resource** (e.g., `CustomersController` for Customer CRUD)
+- **Service layer** for business logic (controllers call services, services call DbContext)
+- **FluentValidation** for request DTO validation
+- **AutoMapper** for Entity ↔ DTO mapping
+- **Consistent response format:** `{ success: true, data: {...}, message: "..." }` or `{ success: false, errors: [...] }`
+- **Pagination:** `GET /api/resource?page=1&pageSize=20&search=xyz&sortBy=name&sortDir=asc`
+- **Pagination response:** `{ items: [...], totalCount: 100, page: 1, pageSize: 20, totalPages: 5 }`
+- **Auto-number generation:** Configurable prefixes (e.g., `INQ-2026-001`, `WO-2026-001`) via `NumberSequenceService`
+- **Soft delete:** All entities have `IsDeleted` flag, never hard delete
+- **Audit fields:** All entities inherit `BaseEntity` with `CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`
+
+### UI Conventions
+- **MUI components** for all UI elements (no custom CSS for basic components)
+- **Mobile-first:** Design for mobile viewport first, then enhance for desktop
+- **Responsive patterns:**
+  - Mobile (< 600px): Card list view, bottom nav, full-width forms
+  - Tablet (600-960px): Compact table, sidebar drawer
+  - Desktop (> 960px): Full data table, persistent sidebar
+- **react-hook-form + zod** for all forms
+- **TanStack Query** for all API calls (queries + mutations)
+- **Zustand** only for client-side state (auth tokens, UI preferences, sidebar state)
+- **Toast notifications** via `react-hot-toast` for success/error feedback
+- **Page structure:** Each page folder contains `index.jsx` (list), `[Id].jsx` (detail), `Create.jsx`, `Edit.jsx`
+
+### Shared Constants
+```
+Area Formula:  SFT = (Perimeter_MM × Length_MM × Quantity) / (304.8 × 304.8)
+               or equivalently: SFT = (Perimeter_MM × Length_MM × Quantity) / 92,903.04
+GST Rate:      18% (configurable)
+CGST + SGST:   9% + 9% (intra-state)
+IGST:          18% (inter-state)
+DFT Range:     60–80 microns (standard)
+Oven Temp:     200–230°C (standard)
+Baking Time:   10–20 minutes (standard)
+MEK Rubs:      30 (standard test)
+```
+
+---
+
+## Build Order & Dependencies
+
+```
+PHASE 0 — Foundation (must be sequential within each track)
+  Track A (API):  00-api-restructuring → 01-database-schema → 02-auth-system
+  Track B (UI):   03-ui-restructuring → 04-pwa-setup → 05-app-shell-layout
+  (Track A and Track B can run in parallel)
+
+PHASE 1 — Masters (depends on Phase 0 complete)
+  00-master-data-api + 01-master-data-ui (can be parallel)
+
+PHASE 2 — Sales (depends on Phase 1 complete)
+  00-inquiry → 01-quotation → 02-proforma-invoice → 03-work-order
+
+PHASE 3 — Material Inward (depends on 02-sales/03-work-order)
+  00-material-inward → 01-incoming-inspection
+
+PHASE 4 — PPC (depends on Phase 3 complete)
+  00-production-work-order → 01-production-schedule
+
+PHASE 5 — Production (depends on Phase 4 complete)
+  00-pretreatment-logging + 01-coating-production-logging (parallel)
+
+PHASE 6 — Quality (depends on Phase 5 complete)
+  00-in-process-inspection → 01-final-inspection-test-cert
+
+PHASE 7 — Dispatch (depends on Phase 6 complete)
+  00-packing-delivery-challan → 01-invoice-generation
+
+PHASE 8 — Purchase (depends on Phase 4, can run parallel with Phases 5–7)
+  00-powder-procurement
+
+PHASE 9 — Dashboards & Reports (depends on Phases 1–8)
+  00-dashboards + 01-reports (parallel)
+
+PHASE 10 — Notifications & Audit (depends on all above)
+  00-notification-system + 01-audit-trail (parallel)
+```
+
+---
+
+## Reference Documents
+
+| Document | Path | Purpose |
+|---|---|---|
+| Business Workflows | `WORKFLOWS.md` | Detailed process flows, data fields, module breakdown |
+| Client Discussion | `hycoat-knowledge/client-requirement.vtt` | Original client meeting transcript |
+| Order Cycle Images | `hycoat-knowledge/order-cycle-images/` | Visual reference for document formats (invoice, DC, PI, test cert, etc.) |
+
+### Image Slide Reference
+- Slide 2: Order Cycle Details (hub diagram with all departments)
+- Slide 3: Order Cycle (linear flow: Inquiry → Dispatch)
+- Slide 4: Inquiry email example
+- Slide 5: Inquiry — Profile Details (engineering drawings)
+- Slide 6: Quotation (document format + email)
+- Slide 7: Material Receipt — Details (tax invoices from supplier)
+- Slide 8: Material Receipt — Details (profile drawings with coating area marked)
+- Slide 9: Material Inward — Details (inward register spreadsheet)
+- Slide 10: Performa Invoice (PI document + annexure with section-wise SFT calc)
+- Slide 12: Production Time Calculation — Pre Process
+- Slide 13: Production Time Calculation — Post Process
+- Slide 14: Production Order
+- Slide 15: Process Route Card
+- Slide 16: Planning Sheet
+- Slide 20: Incoming Inspection Report
+- Slide 21: In Process Inspection Report
+- Slide 22: Final Inspection Report
+- Slide 24: Product Test Certificate
+- Slide 25: Delivery Challan + Packing List
+- Slide 26: Tax Invoice
+
+---
+
+## How to Use These Requirements
+
+1. **Read this README first** — it provides shared context (tech stack, conventions, structure)
+2. **Pick a requirement file** from the appropriate phase (follow build order)
+3. **The requirement file is self-contained** — it lists its own dependencies, entities, endpoints, UI specs, business rules, and acceptance criteria
+4. **Implement the feature** following the conventions in this README
+5. **Verify** against the acceptance criteria listed in the requirement file
+6. **Cross-reference** `WORKFLOWS.md` and the order-cycle images for business context
+
+Each requirement file follows this structure:
+- **Feature ID & Name**
+- **Dependencies** (which other requirement files must be completed first)
+- **Business Context** (what this feature does, why it exists)
+- **Database Entities** (complete field definitions, types, relationships)
+- **API Endpoints** (routes, methods, request/response DTOs, authorization)
+- **UI Pages & Components** (routes, layout, mobile vs desktop)
+- **Business Rules** (calculations, validations, state machines)
+- **Acceptance Criteria** (numbered, testable)
+- **Reference** (links to WORKFLOWS.md sections and image slides)
