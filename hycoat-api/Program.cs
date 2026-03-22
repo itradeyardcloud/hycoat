@@ -1,8 +1,13 @@
+using System.Text;
 using HycoatApi.Data;
 using HycoatApi.Middleware;
 using HycoatApi.Models.Identity;
+using HycoatApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -16,7 +21,25 @@ builder.Host.UseSerilog();
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token"
+    });
+    options.AddSecurityRequirement(doc =>
+    {
+        var requirement = new OpenApiSecurityRequirement();
+        var schemeRef = new OpenApiSecuritySchemeReference("Bearer", doc);
+        requirement.Add(schemeRef, new List<string>());
+        return requirement;
+    });
+});
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -26,7 +49,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
     options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
@@ -49,7 +72,32 @@ builder.Services.AddCors(options =>
     });
 });
 
-// TODO: Add Authentication (see 02-auth-system.md)
+// JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Services
+builder.Services.AddScoped<AuthService>();
+
 // TODO: Add FluentValidation (registered per feature)
 // TODO: Add SignalR (see 10-notifications/00-notification-system.md)
 
@@ -65,7 +113,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
-// TODO: app.UseAuthentication(); (see 02-auth-system.md) — Identity registered, auth middleware enabled below
 app.UseAuthentication();
 app.UseAuthorization();
 
