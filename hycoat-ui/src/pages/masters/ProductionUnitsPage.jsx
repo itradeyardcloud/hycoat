@@ -165,7 +165,8 @@ export default function ProductionUnitsPage() {
     [],
   );
 
-  const rows = Array.isArray(data) ? data : data?.items ?? [];
+  const listData = data?.data ?? data;
+  const rows = Array.isArray(listData) ? listData : listData?.items ?? [];
   const isEmpty = !isLoading && rows.length === 0;
 
   if (isEmpty) {

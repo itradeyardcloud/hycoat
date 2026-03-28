@@ -94,8 +94,10 @@ export default function PowderColorsPage() {
     });
   };
 
-  const rows = data?.items ?? [];
-  const totalCount = data?.totalCount ?? 0;
+  const listData = data?.data ?? data;
+  const vendorOptions = vendors?.data ?? vendors ?? [];
+  const rows = listData?.items ?? [];
+  const totalCount = listData?.totalCount ?? 0;
   const isEmpty = !isLoading && rows.length === 0 && !debouncedSearch && !vendorId;
 
   if (isEmpty) {
@@ -158,7 +160,7 @@ export default function PowderColorsPage() {
             }}
           >
             <MenuItem value="">All Vendors</MenuItem>
-            {vendors?.map((v) => (
+            {vendorOptions?.map((v) => (
               <MenuItem key={v.id} value={v.id}>
                 {v.name}
               </MenuItem>

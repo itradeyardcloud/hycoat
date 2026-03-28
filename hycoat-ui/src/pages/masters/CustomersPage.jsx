@@ -78,8 +78,9 @@ export default function CustomersPage() {
     });
   };
 
-  const rows = data?.items ?? [];
-  const totalCount = data?.totalCount ?? 0;
+  const listData = data?.data ?? data;
+  const rows = listData?.items ?? [];
+  const totalCount = listData?.totalCount ?? 0;
   const isEmpty = !isLoading && rows.length === 0 && !debouncedSearch;
 
   if (isEmpty) {
