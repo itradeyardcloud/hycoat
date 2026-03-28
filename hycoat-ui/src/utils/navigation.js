@@ -9,9 +9,11 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import StoreIcon from '@mui/icons-material/Store';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 export const navigationItems = [
   { label: 'Dashboard', icon: DashboardIcon, path: '/dashboard', departments: '*' },
+  { label: 'Notifications', icon: NotificationsIcon, path: '/notifications', departments: '*' },
   {
     label: 'Masters',
     icon: SettingsIcon,
@@ -100,6 +102,7 @@ export const navigationItems = [
     departments: ['Admin'],
     children: [
       { label: 'User Management', path: '/admin/users' },
+      { label: 'Audit Logs', path: '/admin/audit-logs' },
     ],
   },
 ];

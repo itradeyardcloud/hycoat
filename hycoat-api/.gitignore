@@ -2,6 +2,7 @@ bin/
 obj/
 *.user
 .vs/
+logs/
 appsettings.*.json
 !appsettings.json
 !appsettings.Development.json

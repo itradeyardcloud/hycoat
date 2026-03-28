@@ -22,7 +22,9 @@ const statusColorMap = {
   Confirmed: 'success',
   QAComplete: 'success',
   Dispatched: 'success',
+  Delivered: 'success',
   Invoiced: 'success',
+  Paid: 'success',
   Closed: 'success',
   // Error (red)
   Rejected: 'error',
@@ -33,6 +35,9 @@ const statusColorMap = {
   // Warning (orange)
   Pending: 'warning',
   Awaited: 'warning',
+  // Primary (blue-purple)
+  Finalized: 'primary',
+  Sent: 'primary',
 };
 
 function getChipColor(status) {

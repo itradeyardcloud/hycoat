@@ -23,5 +23,6 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="QuestPDF" Version="2025.4.0" />
+    <PackageReference Include="WebPush" Version="1.0.12" />
   </ItemGroup>
 </Project>

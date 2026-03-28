@@ -33,18 +33,13 @@ public class CreatePretreatmentLogValidator : AbstractValidator<CreatePretreatme
             .GreaterThan(0).When(x => x.EtchTimeMins.HasValue)
             .WithMessage("Etch Time must be greater than 0");
         RuleFor(x => x.Remarks).MaximumLength(1000);
-        RuleForEach(x => x.TankReadings).SetValidator(new TankReadingValidator(ValidTankNames));
-    }
-}
-
-public class TankReadingValidator : AbstractValidator<TankReadingDto>
-{
-    public TankReadingValidator(string[] validTankNames)
-    {
-        RuleFor(x => x.TankName)
-            .NotEmpty().WithMessage("Tank Name is required")
-            .Must(name => validTankNames.Contains(name))
-            .WithMessage("Tank Name must be from the predefined list");
-        RuleFor(x => x.ChemicalAdded).MaximumLength(200);
+        RuleForEach(x => x.TankReadings).ChildRules(tank =>
+        {
+            tank.RuleFor(x => x.TankName)
+                .NotEmpty().WithMessage("Tank Name is required")
+                .Must(name => ValidTankNames.Contains(name))
+                .WithMessage("Tank Name must be from the predefined list");
+            tank.RuleFor(x => x.ChemicalAdded).MaximumLength(200);
+        });
     }
 }

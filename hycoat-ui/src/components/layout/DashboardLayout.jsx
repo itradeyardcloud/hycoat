@@ -7,7 +7,6 @@ import {
   IconButton,
   Toolbar,
   Typography,
-  Badge,
   Menu,
   MenuItem,
   ListItemIcon,
@@ -19,7 +18,6 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import useAuthStore from '../../stores/authStore';
@@ -27,6 +25,7 @@ import useUiStore from '../../stores/uiStore';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
 import Breadcrumbs from './Breadcrumbs';
+import NotificationBell from '../notifications/NotificationBell';
 
 const DRAWER_WIDTH = 240;
 const DRAWER_COLLAPSED = 64;
@@ -94,11 +93,7 @@ export default function DashboardLayout() {
           </Typography>
 
           {/* Notification bell */}
-          <IconButton color="inherit" sx={{ mr: 1 }}>
-            <Badge badgeContent={0} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          <NotificationBell />
 
           {/* User avatar */}
           <IconButton onClick={(e) => setAvatarAnchor(e.currentTarget)} size="small">

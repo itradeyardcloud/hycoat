@@ -25,6 +25,8 @@ const VendorFormPage = lazy(() => import('./pages/masters/VendorFormPage'));
 const ProcessTypesPage = lazy(() => import('./pages/masters/ProcessTypesPage'));
 const ProductionUnitsPage = lazy(() => import('./pages/masters/ProductionUnitsPage'));
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
+const AuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'));
+const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 
 // Sales
 const InquiriesPage = lazy(() => import('./pages/sales/InquiriesPage'));
@@ -57,14 +59,18 @@ const CoatingLogFormPage = lazy(() => import('./pages/production/CoatingLogFormP
 // Quality
 const InProcessInspectionsPage = lazy(() => import('./pages/quality/InProcessInspectionsPage'));
 const InProcessInspectionFormPage = lazy(() => import('./pages/quality/InProcessInspectionFormPage'));
+const PanelTestFormPage = lazy(() => import('./pages/quality/PanelTestFormPage'));
 const FinalInspectionsPage = lazy(() => import('./pages/quality/FinalInspectionsPage'));
 const FinalInspectionFormPage = lazy(() => import('./pages/quality/FinalInspectionFormPage'));
 const TestCertificatesPage = lazy(() => import('./pages/quality/TestCertificatesPage'));
+const TestCertificateFormPage = lazy(() => import('./pages/quality/TestCertificateFormPage'));
+const TestCertificatePreviewPage = lazy(() => import('./pages/quality/TestCertificatePreviewPage'));
 
 // Dispatch
 const PackingListsPage = lazy(() => import('./pages/dispatch/PackingListsPage'));
 const PackingListFormPage = lazy(() => import('./pages/dispatch/PackingListFormPage'));
 const DeliveryChallansPage = lazy(() => import('./pages/dispatch/DeliveryChallansPage'));
+const DeliveryChallanFormPage = lazy(() => import('./pages/dispatch/DeliveryChallanFormPage'));
 const InvoicesPage = lazy(() => import('./pages/dispatch/InvoicesPage'));
 const InvoiceFormPage = lazy(() => import('./pages/dispatch/InvoiceFormPage'));
 
@@ -97,6 +103,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
 
             {/* Masters — Admin + Leader only */}
             <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} />}>
@@ -166,17 +173,25 @@ function App() {
               <Route path="/quality/in-process" element={<InProcessInspectionsPage />} />
               <Route path="/quality/in-process/new" element={<InProcessInspectionFormPage />} />
               <Route path="/quality/in-process/:id" element={<InProcessInspectionFormPage />} />
+              <Route path="/quality/panel-tests/new" element={<PanelTestFormPage />} />
+              <Route path="/quality/panel-tests/:id" element={<PanelTestFormPage />} />
               <Route path="/quality/final" element={<FinalInspectionsPage />} />
               <Route path="/quality/final/new" element={<FinalInspectionFormPage />} />
               <Route path="/quality/final/:id" element={<FinalInspectionFormPage />} />
               <Route path="/quality/test-certificates" element={<TestCertificatesPage />} />
+              <Route path="/quality/test-certificates/new" element={<TestCertificateFormPage />} />
+              <Route path="/quality/test-certificates/:id" element={<TestCertificateFormPage />} />
+              <Route path="/quality/test-certificates/:id/preview" element={<TestCertificatePreviewPage />} />
             </Route>
 
             {/* Dispatch — SCM */}
             <Route element={<ProtectedRoute allowedDepartments={['SCM']} />}>
               <Route path="/dispatch/packing-lists" element={<PackingListsPage />} />
               <Route path="/dispatch/packing-lists/new" element={<PackingListFormPage />} />
+              <Route path="/dispatch/packing-lists/:id" element={<PackingListFormPage />} />
               <Route path="/dispatch/delivery-challans" element={<DeliveryChallansPage />} />
+              <Route path="/dispatch/delivery-challans/new" element={<DeliveryChallanFormPage />} />
+              <Route path="/dispatch/delivery-challans/:id" element={<DeliveryChallanFormPage />} />
               <Route path="/dispatch/invoices" element={<InvoicesPage />} />
               <Route path="/dispatch/invoices/new" element={<InvoiceFormPage />} />
               <Route path="/dispatch/invoices/:id" element={<InvoiceFormPage />} />
@@ -198,6 +213,7 @@ function App() {
             {/* Admin — Admin only */}
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
               <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/audit-logs" element={<AuditLogPage />} />
             </Route>
           </Route>
         </Route>

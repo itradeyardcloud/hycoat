@@ -8,7 +8,9 @@ using HycoatApi.Services.Masters;
 using HycoatApi.Services.Sales;
 using HycoatApi.Services.MaterialInward;
 using HycoatApi.Services.Planning;
+using HycoatApi.Services.Quality;
 using HycoatApi.Services.Production;
+using HycoatApi.Services.Dispatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -126,6 +128,18 @@ builder.Services.AddScoped<IProductionScheduleService, ProductionScheduleService
 // Production Services
 builder.Services.AddScoped<IPretreatmentLogService, PretreatmentLogService>();
 builder.Services.AddScoped<IProductionLogService, ProductionLogService>();
+
+// Quality Services
+builder.Services.AddScoped<IInProcessInspectionService, InProcessInspectionService>();
+builder.Services.AddScoped<IPanelTestService, PanelTestService>();
+builder.Services.AddScoped<IFinalInspectionService, FinalInspectionService>();
+builder.Services.AddScoped<ITestCertificateService, TestCertificateService>();
+
+// Dispatch Services
+builder.Services.AddScoped<IPackingListService, PackingListService>();
+builder.Services.AddScoped<IDeliveryChallanService, DeliveryChallanService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IDocumentBundleEmailService, DocumentBundleEmailService>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
