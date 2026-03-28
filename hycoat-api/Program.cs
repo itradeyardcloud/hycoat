@@ -2,11 +2,17 @@ using System.Text;
 using HycoatApi.Data;
 using HycoatApi.Middleware;
 using HycoatApi.Models.Identity;
+using FluentValidation;
 using HycoatApi.Services;
+using HycoatApi.Services.Masters;
+using HycoatApi.Services.Sales;
+using HycoatApi.Services.MaterialInward;
+using HycoatApi.Services.Planning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
 using Serilog;
 
@@ -97,8 +103,37 @@ builder.Services.AddAuthentication(options =>
 
 // Services
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ISectionProfileService, SectionProfileService>();
+builder.Services.AddScoped<IPowderColorService, PowderColorService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IProcessTypeService, ProcessTypeService>();
+builder.Services.AddScoped<IProductionUnitService, ProductionUnitService>();
 
-// TODO: Add FluentValidation (registered per feature)
+// Sales Services
+builder.Services.AddScoped<IInquiryService, InquiryService>();
+
+// Material Inward Services
+builder.Services.AddScoped<IMaterialInwardService, MaterialInwardService>();
+builder.Services.AddScoped<IIncomingInspectionService, IncomingInspectionService>();
+
+// Planning Services
+builder.Services.AddScoped<IProductionTimeCalcService, ProductionTimeCalcService>();
+builder.Services.AddScoped<IProductionWorkOrderService, ProductionWorkOrderService>();
+builder.Services.AddScoped<IProductionScheduleService, ProductionScheduleService>();
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddHttpContextAccessor();
+
+// Dev auth bypass — set "BypassAuth": true in appsettings.Development.json
+var bypassAuth = builder.Configuration.GetValue<bool>("BypassAuth");
+if (bypassAuth)
+{
+    Log.Warning(">>> AUTH BYPASS IS ENABLED — all endpoints are open <<<");
+    builder.Services.AddSingleton<IAuthorizationHandler, DevBypassAuthorizationHandler>();
+}
+
 // TODO: Add SignalR (see 10-notifications/00-notification-system.md)
 
 var app = builder.Build();
@@ -113,8 +148,15 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
+if (bypassAuth)
+{
+    app.UseMiddleware<DevAuthBypassMiddleware>();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 

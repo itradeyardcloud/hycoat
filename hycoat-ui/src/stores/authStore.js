@@ -14,6 +14,22 @@ const useAuthStore = create((set) => ({
 
   // Initialize from localStorage on app load
   initialize: () => {
+    // Dev auth bypass — set VITE_BYPASS_AUTH=true in .env
+    if (import.meta.env.VITE_BYPASS_AUTH === 'true') {
+      console.warn('>>> AUTH BYPASS IS ENABLED — auto-logged in as Dev Admin <<<');
+      set({
+        user: {
+          id: 'dev-bypass-user',
+          email: 'admin@hycoat.dev',
+          fullName: 'Dev Admin',
+          role: 'Admin',
+          department: 'Development',
+        },
+        isAuthenticated: true,
+      });
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
     if (token) {
       try {

@@ -1,0 +1,144 @@
+2026-03-28 11:07:55.283 +05:30 [WRN] >>> AUTH BYPASS IS ENABLED — all endpoints are open <<<
+2026-03-28 11:07:55.567 +05:30 [INF] User profile is available. Using 'C:\Users\Admin\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-03-28 11:07:55.859 +05:30 [INF] Creating key {45f52a05-840c-496a-b3ec-3fc6e7cc432a} with creation date 2026-03-28 05:37:55Z, activation date 2026-03-28 05:37:55Z, and expiration date 2026-06-26 05:37:55Z.
+2026-03-28 11:07:55.870 +05:30 [INF] Writing data to file 'C:\Users\Admin\AppData\Local\ASP.NET\DataProtection-Keys\key-45f52a05-840c-496a-b3ec-3fc6e7cc432a.xml'.
+2026-03-28 11:07:55.914 +05:30 [WRN] The WebRootPath was not found: d:\IProject\hycoat-api\wwwroot. Static files may be unavailable.
+2026-03-28 11:07:56.063 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert
+2026-03-28 11:07:56.111 +05:30 [INF] Now listening on: https://localhost:5001
+2026-03-28 11:07:56.115 +05:30 [INF] Now listening on: http://localhost:5000
+2026-03-28 11:07:56.117 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-28 11:07:56.118 +05:30 [INF] Hosting environment: Development
+2026-03-28 11:07:56.119 +05:30 [INF] Content root path: d:\IProject\hycoat-api
+2026-03-28 11:08:10.667 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger - null null
+2026-03-28 11:08:10.706 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger - 301 0 null 40.0161ms
+2026-03-28 11:08:10.713 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.html - null null
+2026-03-28 11:08:10.771 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.html - 200 null text/html;charset=utf-8 57.8876ms
+2026-03-28 11:08:10.807 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - null null
+2026-03-28 11:08:10.807 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.css - null null
+2026-03-28 11:08:10.808 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - null null
+2026-03-28 11:08:10.808 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - null null
+2026-03-28 11:08:10.808 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.js - null null
+2026-03-28 11:08:10.830 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.js - 200 null application/javascript;charset=utf-8 21.9ms
+2026-03-28 11:08:10.834 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.css - 200 152 text/css 26.2901ms
+2026-03-28 11:08:10.853 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - 200 26388 text/css 45.2555ms
+2026-03-28 11:08:10.853 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - 200 76581 text/javascript 44.4306ms
+2026-03-28 11:08:10.854 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - 200 417806 text/javascript 45.2532ms
+2026-03-28 11:08:11.135 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - null null
+2026-03-28 11:08:11.169 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/favicon-32x32.png - null null
+2026-03-28 11:08:11.176 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/favicon-32x32.png - 200 628 image/png 7.486ms
+2026-03-28 11:08:11.351 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 215.7598ms
+2026-03-28 11:08:24.041 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/api/customers?page=1&pageSize=20&sortBy=Name&sortDesc=false - null null
+2026-03-28 11:08:25.245 +05:30 [INF] Executing endpoint 'HycoatApi.Controllers.CustomersController.GetAll (hycoat-api)'
+2026-03-28 11:08:25.267 +05:30 [INF] Route matched with {action = "GetAll", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[HycoatApi.DTOs.ApiResponse`1[HycoatApi.DTOs.PagedResponse`1[HycoatApi.DTOs.Masters.CustomerDto]]]] GetAll(System.String, Int32, Int32, System.String, Boolean) on controller HycoatApi.Controllers.CustomersController (hycoat-api).
+2026-03-28 11:08:25.918 +05:30 [WRN] You do not have a valid license key for the Lucky Penny software AutoMapper. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+2026-03-28 11:08:27.229 +05:30 [WRN] Entity 'DeliveryChallan' has a global query filter defined and is the required end of a relationship with the entity 'DCLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.236 +05:30 [WRN] Entity 'Invoice' has a global query filter defined and is the required end of a relationship with the entity 'InvoiceLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.238 +05:30 [WRN] Entity 'PackingList' has a global query filter defined and is the required end of a relationship with the entity 'PackingListLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.241 +05:30 [WRN] Entity 'IncomingInspection' has a global query filter defined and is the required end of a relationship with the entity 'IncomingInspectionLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.244 +05:30 [WRN] Entity 'MaterialInward' has a global query filter defined and is the required end of a relationship with the entity 'MaterialInwardLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.246 +05:30 [WRN] Entity 'ProductionWorkOrder' has a global query filter defined and is the required end of a relationship with the entity 'PWOLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.248 +05:30 [WRN] Entity 'PretreatmentLog' has a global query filter defined and is the required end of a relationship with the entity 'PretreatmentTankReading'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.249 +05:30 [WRN] Entity 'ProductionLog' has a global query filter defined and is the required end of a relationship with the entity 'ProductionPhoto'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.253 +05:30 [WRN] Entity 'GoodsReceivedNote' has a global query filter defined and is the required end of a relationship with the entity 'GRNLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.255 +05:30 [WRN] Entity 'PowderColor' has a global query filter defined and is the required end of a relationship with the entity 'POLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.257 +05:30 [WRN] Entity 'PowderColor' has a global query filter defined and is the required end of a relationship with the entity 'PowderIndentLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.260 +05:30 [WRN] Entity 'PowderColor' has a global query filter defined and is the required end of a relationship with the entity 'PowderStock'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.262 +05:30 [WRN] Entity 'InProcessInspection' has a global query filter defined and is the required end of a relationship with the entity 'InProcessDFTReading'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.264 +05:30 [WRN] Entity 'InProcessInspection' has a global query filter defined and is the required end of a relationship with the entity 'InProcessTestResult'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.266 +05:30 [WRN] Entity 'ProformaInvoice' has a global query filter defined and is the required end of a relationship with the entity 'PILineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:27.268 +05:30 [WRN] Entity 'ProcessType' has a global query filter defined and is the required end of a relationship with the entity 'QuotationLineItem'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-28 11:08:38.191 +05:30 [ERR] An error occurred using the connection to database 'HycoatDb' on server 'localhost'.
+2026-03-28 11:08:38.228 +05:30 [ERR] An exception occurred while iterating over the results of a query for context type 'HycoatApi.Data.AppDbContext'.
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot open database "HycoatDb" requested by the login. The login failed.
+Login failed for user 'DESKTOP-7QALTN7\Admin'.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, IDbConnectionPool pool, Func`3 accessTokenCallback)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionPoolGroupProviderInfo poolGroupProviderInfo, IDbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(IDbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+ClientConnectionId:0913eca9-43e7-43bb-90f3-eea7b9196758
+Error Number:4060,State:1,Class:11
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot open database "HycoatDb" requested by the login. The login failed.
+Login failed for user 'DESKTOP-7QALTN7\Admin'.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, IDbConnectionPool pool, Func`3 accessTokenCallback)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionPoolGroupProviderInfo poolGroupProviderInfo, IDbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(IDbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+ClientConnectionId:0913eca9-43e7-43bb-90f3-eea7b9196758
+Error Number:4060,State:1,Class:11
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-03-28 11:08:38.349 +05:30 [INF] Executed action HycoatApi.Controllers.CustomersController.GetAll (hycoat-api) in 13071.1208ms
+2026-03-28 11:08:38.358 +05:30 [INF] Executed endpoint 'HycoatApi.Controllers.CustomersController.GetAll (hycoat-api)'
+2026-03-28 11:08:38.393 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/api/customers?page=1&pageSize=20&sortBy=Name&sortDesc=false - 499 null application/json; charset=utf-8 14351.8996ms
+2026-03-28 11:09:00.108 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.html - null null
+2026-03-28 11:09:00.113 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.html - 200 null text/html;charset=utf-8 4.4393ms
+2026-03-28 11:09:00.169 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - null null
+2026-03-28 11:09:00.169 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.css - null null
+2026-03-28 11:09:00.170 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - null null
+2026-03-28 11:09:00.170 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - null null
+2026-03-28 11:09:00.170 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.js - null null
+2026-03-28 11:09:00.175 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - 200 26388 text/css 5.954ms
+2026-03-28 11:09:00.176 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.css - 200 152 text/css 7.1765ms
+2026-03-28 11:09:00.186 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - 200 76581 text/javascript 15.9666ms
+2026-03-28 11:09:00.186 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - 200 417806 text/javascript 16.4957ms
+2026-03-28 11:09:00.190 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.js - 200 null application/javascript;charset=utf-8 18.969ms
+2026-03-28 11:09:00.451 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - null null
+2026-03-28 11:09:00.493 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 42.3589ms
+2026-03-28 11:09:01.305 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.html - null null
+2026-03-28 11:09:01.311 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.html - 200 null text/html;charset=utf-8 6.6929ms
+2026-03-28 11:09:01.351 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - null null
+2026-03-28 11:09:01.351 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.css - null null
+2026-03-28 11:09:01.352 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - null null
+2026-03-28 11:09:01.352 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - null null
+2026-03-28 11:09:01.352 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/index.js - null null
+2026-03-28 11:09:01.357 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui.css - 304 null null 5.2737ms
+2026-03-28 11:09:01.363 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.css - 304 null null 11.3181ms
+2026-03-28 11:09:01.368 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-bundle.js - 304 null null 15.9283ms
+2026-03-28 11:09:01.373 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/swagger-ui-standalone-preset.js - 304 null null 20.9165ms
+2026-03-28 11:09:01.376 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/index.js - 304 null null 23.7381ms
+2026-03-28 11:09:01.475 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - null null
+2026-03-28 11:09:01.490 +05:30 [INF] Request starting HTTP/2 GET https://localhost:5001/swagger/favicon-32x32.png - null null
+2026-03-28 11:09:01.495 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/favicon-32x32.png - 200 628 image/png 4.5258ms
+2026-03-28 11:09:01.536 +05:30 [INF] Request finished HTTP/2 GET https://localhost:5001/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 61.1284ms
