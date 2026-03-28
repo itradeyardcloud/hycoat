@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hycoat Systems — Proforma Invoice</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --pri: #1B2A4A; --acc: #C8952E; --acc-l: #f5eedf;
+            --bg: #f3f4f6; --txt: #222; --mut: #666; --bdr: #ddd;
+        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; }
+
+        /* TOOLBAR */
+        .app-toolbar {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--pri); color: #fff;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+        }
+        .app-toolbar h1 { font-size: 15px; font-weight: 600; white-space: nowrap; }
+        .toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .toolbar-actions button {
+            padding: 7px 14px; border: none; border-radius: 5px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn-preview { background: #fff; color: var(--pri); }
+        .btn-pdf { background: var(--acc); color: #fff; }
+        .btn-edit { background: #fff; color: var(--pri); }
+
+        /* FORM */
+        .form-container { max-width: 720px; margin: 16px auto; padding: 0 12px; }
+        .form-section {
+            background: #fff; border-radius: 8px;
+            padding: 16px; margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .form-section h2 {
+            font-size: 13px; font-weight: 700; color: var(--pri);
+            text-transform: uppercase; letter-spacing: .5px;
+            margin-bottom: 12px; padding-bottom: 6px;
+            border-bottom: 2px solid var(--pri);
+        }
+        .form-row { display: grid; gap: 12px; margin-bottom: 10px; }
+        .form-row.two { grid-template-columns: 1fr 1fr; }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label {
+            font-size: 11px; font-weight: 600; color: var(--mut);
+            text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px;
+        }
+        .form-group input, .form-group textarea {
+            padding: 8px 10px; border: 1.5px solid var(--bdr); border-radius: 5px;
+            font-size: 14px; font-family: inherit; color: var(--txt);
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--pri);
+        }
+        .form-group textarea { resize: vertical; min-height: 56px; }
+        .form-group input[readonly] { background: #f5f5f5; color: #444; }
+
+        /* Line items table */
+        .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+        .items-table th {
+            background: var(--pri); color: #fff;
+            padding: 8px 6px; font-size: 11px; text-transform: uppercase;
+            font-weight: 600; text-align: left; white-space: nowrap;
+        }
+        .items-table td { padding: 4px; border-bottom: 1px solid #eee; vertical-align: top; }
+        .items-table input {
+            width: 100%; padding: 6px; border: 1.5px solid var(--bdr);
+            border-radius: 4px; font-size: 13px; font-family: inherit;
+        }
+        .items-table input:focus { outline: none; border-color: var(--pri); }
+        .items-table input[readonly] { background: #f5f5f5; border-color: transparent; }
+        .items-table .sl-cell { width: 36px; text-align: center; }
+        .items-table .action-cell { width: 36px; text-align: center; }
+        .btn-remove-row {
+            background: #dc3545; color: #fff; border: none;
+            width: 26px; height: 26px; border-radius: 50%;
+            font-size: 15px; cursor: pointer; line-height: 1;
+        }
+        .btn-add-row {
+            margin-top: 8px; padding: 7px 16px;
+            background: var(--pri); color: #fff; border: none;
+            border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .summary-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 14px; padding-top: 12px; border-top: 1px solid #eee;
+        }
+
+        /* Line items textarea in table */
+        .items-table textarea {
+            width: 100%; padding: 6px; border: 1.5px solid var(--bdr);
+            border-radius: 4px; font-size: 13px; font-family: inherit;
+            resize: vertical; min-height: 60px;
+        }
+        .items-table textarea:focus { outline: none; border-color: var(--pri); }
+
+        /* MOBILE FORM */
+        @media (max-width: 600px) {
+            .app-toolbar h1 { font-size: 13px; }
+            .toolbar-actions button { padding: 6px 10px; font-size: 12px; }
+            .form-container { padding: 0 8px; }
+            .form-section { padding: 12px; }
+            .form-row.two, .form-row.three { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+
+            /* Card layout for line items on mobile */
+            .tbl-scroll { overflow-x: visible; }
+            .items-table thead { display: none; }
+            .items-table, .items-table tbody { display: block; width: 100%; }
+            .items-table tr {
+                display: block; background: #f8f9fb; border-radius: 8px;
+                padding: 12px; margin-bottom: 10px;
+                border: 1.5px solid var(--bdr); position: relative;
+            }
+            .items-table td { display: block; padding: 4px 0; border-bottom: none; }
+            .items-table td::before {
+                content: attr(data-label);
+                display: block; font-size: 10px; font-weight: 600;
+                color: var(--mut); text-transform: uppercase;
+                letter-spacing: .3px; margin-bottom: 2px;
+            }
+            .items-table .sl-cell {
+                width: auto; text-align: left;
+                font-size: 11px; font-weight: 700; color: var(--pri);
+                padding-bottom: 6px; border-bottom: 1px solid #eee; margin-bottom: 4px;
+            }
+            .items-table .sl-cell::before { content: 'Item #'; }
+            .items-table td.qty-cell, .items-table td.rate-cell, .items-table td.amt-cell {
+                display: inline-block; width: calc(33.33% - 6px); vertical-align: top;
+            }
+            .items-table .action-cell {
+                position: absolute; top: 10px; right: 10px; width: auto;
+            }
+            .items-table .action-cell::before { display: none; }
+            .items-table input, .items-table textarea { font-size: 14px; }
+        }
+
+        /* PREVIEW / PDF */
+        #previewArea { display: none; }
+        .pi-page {
+            width: 210mm; background: #fff;
+            margin: 16px auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,.12);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #222; font-size: 11.5px;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        .pi-header {
+            background: linear-gradient(135deg, #15223d 0%, #1B2A4A 50%, #243658 100%);
+            color: #fff; padding: 20px 28px;
+            display: flex; align-items: center; gap: 18px;
+            position: relative;
+        }
+        .pi-header::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--acc) 0%, #e0b860 50%, var(--acc) 100%);
+        }
+        .pi-header .logo-area {
+            width: 72px; height: 72px;
+            background: #fff; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,.2);
+        }
+        .pi-header .logo-area img { max-width: 64px; max-height: 64px; object-fit: contain; }
+        .pi-header .company-info { flex: 1; }
+        .pi-header .company-name {
+            font-size: 26px; font-weight: 800; letter-spacing: .5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,.15);
+        }
+        .pi-header .company-tagline {
+            font-size: 10px; opacity: .75; margin-top: 2px;
+            letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;
+        }
+        .pi-header .company-contact {
+            font-size: 9.5px; opacity: .7; margin-top: 6px; line-height: 1.4;
+        }
+        .pi-header .doc-badge {
+            text-align: center; flex-shrink: 0;
+        }
+        .pi-header .doc-badge .doc-title {
+            font-size: 14px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(255,255,255,.12); backdrop-filter: blur(4px);
+            padding: 8px 20px; border-radius: 6px;
+            border: 1.5px solid rgba(255,255,255,.25);
+        }
+        .pi-header .doc-badge .doc-number {
+            font-size: 10px; margin-top: 5px; opacity: .7;
+            letter-spacing: .5px;
+        }
+        .pi-body { padding: 20px 28px 18px; }
+
+        /* Info Cards */
+        .pi-info-row { display: flex; gap: 14px; margin-bottom: 16px; }
+        .pi-info-card {
+            flex: 1; background: linear-gradient(135deg, #f8f9fc 0%, #f0f2f7 100%);
+            border-radius: 8px; padding: 12px 16px;
+            border-left: 4px solid var(--pri);
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .pi-info-card.gold { border-left-color: var(--acc); }
+        .pi-info-card .card-label {
+            font-size: 9px; font-weight: 700; color: var(--pri);
+            text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+        }
+        .pi-info-card.gold .card-label { color: var(--acc); }
+        .pi-info-card .card-row {
+            display: flex; justify-content: space-between;
+            font-size: 11px; padding: 2px 0;
+        }
+        .pi-info-card .card-row .lbl { color: #888; font-size: 10px; }
+        .pi-info-card .card-row .val { font-weight: 700; color: #1a1a1a; }
+
+        /* Customer */
+        .pi-customer {
+            background: linear-gradient(135deg, #fffaf2 0%, #fef6e8 100%);
+            border-radius: 8px; padding: 14px 18px; margin-bottom: 16px;
+            border-left: 4px solid var(--acc);
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .pi-customer .card-label {
+            font-size: 9px; font-weight: 700; color: var(--acc);
+            text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px;
+        }
+        .pi-customer .party-name { font-size: 14px; font-weight: 800; color: var(--pri); }
+        .pi-customer .party-addr { font-size: 11px; color: #555; white-space: pre-line; margin-top: 3px; line-height: 1.5; }
+        .pi-customer .party-gst { font-size: 11px; color: #555; margin-top: 5px; }
+        .pi-customer .party-gst strong { color: var(--pri); font-weight: 700; }
+
+        /* Items Table (Preview) */
+        .pi-items-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+        .pi-items-table thead th {
+            background: linear-gradient(135deg, #15223d 0%, #1B2A4A 100%); color: #fff;
+            padding: 10px 12px; font-size: 9.5px; text-transform: uppercase;
+            letter-spacing: .6px; font-weight: 700; text-align: left;
+        }
+        .pi-items-table thead th:first-child { border-radius: 6px 0 0 0; }
+        .pi-items-table thead th:last-child { border-radius: 0 6px 0 0; text-align: right; }
+        .pi-items-table thead th.r { text-align: right; }
+        .pi-items-table tbody td {
+            padding: 9px 12px; font-size: 11px;
+            border-bottom: 1px solid #eef0f4;
+        }
+        .pi-items-table tbody tr:nth-child(even) td { background: #f7f8fb; }
+        .pi-items-table tbody tr:hover td { background: #f0f2f8; }
+        .pi-items-table tbody td.r { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+        .pi-items-table tbody td.sl { text-align: center; color: var(--acc); font-weight: 700; font-size: 12px; }
+        .pi-items-table tbody td.description { line-height: 1.45; color: #333; }
+
+        /* Totals */
+        .pi-totals-wrap { display: flex; justify-content: flex-end; margin-top: 4px; }
+        .pi-totals {
+            width: 260px; border-radius: 0 0 8px 8px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            border: 1px solid #e8eaf0; border-top: none;
+        }
+        .pi-totals .tot-row {
+            display: flex; justify-content: space-between;
+            padding: 7px 14px; font-size: 11px;
+            border-bottom: 1px solid #eef0f4;
+            background: #fafbfd;
+        }
+        .pi-totals .tot-row:last-child { border-bottom: none; }
+        .pi-totals .tot-row .tot-label { color: #777; font-size: 10px; }
+        .pi-totals .tot-row .tot-value { font-weight: 700; font-variant-numeric: tabular-nums; color: #222; }
+        .pi-totals .tot-row.grand {
+            background: linear-gradient(135deg, #15223d 0%, #1B2A4A 100%); color: #fff;
+            font-size: 13px; font-weight: 800; padding: 10px 14px;
+        }
+        .pi-totals .tot-row.grand .tot-label,
+        .pi-totals .tot-row.grand .tot-value { color: #fff; font-weight: 800; }
+
+        /* Amount in words */
+        .pi-amount-words {
+            margin-top: 14px; padding: 10px 16px;
+            background: linear-gradient(135deg, #fdf8ee 0%, #f9f0dc 100%);
+            border-radius: 6px;
+            font-size: 11.5px; color: #8a6d1b;
+            border-left: 4px solid var(--acc);
+            font-style: italic;
+        }
+        .pi-amount-words strong { color: #5a470f; font-style: normal; font-weight: 700; }
+
+        /* T&C + Bank side by side */
+        .pi-bottom { display: flex; gap: 14px; margin-top: 16px; }
+        .pi-tc {
+            flex: 1; padding: 14px 16px;
+            background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+            border-radius: 8px;
+        }
+        .pi-tc h3 {
+            font-size: 10px; font-weight: 700; color: var(--pri);
+            text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px;
+            padding-bottom: 5px; border-bottom: 2px solid var(--pri);
+        }
+        .pi-tc ol { padding-left: 16px; font-size: 10px; color: #555; }
+        .pi-tc ol li { margin-bottom: 3px; line-height: 1.4; }
+
+        .pi-bank {
+            flex: 1; padding: 14px 16px;
+            background: linear-gradient(135deg, #f3f5fa 0%, #eaecf3 100%);
+            border-radius: 8px;
+            border-left: 4px solid var(--pri);
+        }
+        .pi-bank h3 {
+            font-size: 10px; font-weight: 700; color: var(--pri);
+            text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px;
+            padding-bottom: 5px; border-bottom: 2px solid var(--pri);
+        }
+        .pi-bank .bank-row { display: flex; gap: 8px; font-size: 10.5px; padding: 2.5px 0; }
+        .pi-bank .bank-row .blbl { color: #888; min-width: 78px; font-size: 9.5px; }
+        .pi-bank .bank-row .bval { font-weight: 700; color: #1a1a1a; }
+
+        /* Signature */
+        .pi-signature {
+            margin-top: 20px; text-align: right;
+            padding-top: 14px;
+            border-top: 2px solid #e8eaf0;
+        }
+        .pi-signature .sig-line {
+            width: 180px; margin-left: auto; margin-bottom: 6px;
+            border-bottom: 1px dashed #aaa;
+            padding-bottom: 30px;
+        }
+        .pi-signature .sig-label {
+            font-size: 8px; color: #aaa; text-transform: uppercase;
+            letter-spacing: .6px; margin-bottom: 4px;
+        }
+        .pi-signature .sig-name { font-size: 14px; font-weight: 800; color: var(--pri); }
+        .pi-signature .sig-title { font-size: 11px; color: #666; margin-top: 1px; }
+        .pi-signature .sig-phone { font-size: 10.5px; color: #888; margin-top: 1px; }
+
+        /* Footer */
+        .pi-footer {
+            text-align: center; padding: 12px 28px;
+            font-size: 9px; color: #999;
+            border-top: 3px solid var(--pri); margin-top: 16px;
+            background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+        }
+        .pi-footer .footer-brand {
+            font-weight: 700; color: var(--pri); font-size: 10px;
+            letter-spacing: .5px;
+        }
+        .pi-footer .footer-tagline {
+            font-size: 8.5px; color: #aaa; margin-top: 2px;
+        }
+
+        /* MOBILE PREVIEW */
+        @media (max-width: 600px) {
+            .pi-page { width: 100%; font-size: 11px; }
+            .pi-header { padding: 14px 14px; gap: 12px; flex-wrap: wrap; }
+            .pi-header .company-name { font-size: 20px; }
+            .pi-header .company-contact { display: none; }
+            .pi-header .doc-badge .doc-title { font-size: 11px; padding: 6px 12px; }
+            .pi-body { padding: 12px 14px; }
+            .pi-info-row { flex-direction: column; }
+            .pi-bottom { flex-direction: column; }
+            .pi-totals { width: 220px; }
+        }
+
+        /* PDF rendering overrides */
+        body.pdf-rendering .app-toolbar { display: none !important; }
+        body.pdf-rendering .form-container { display: none !important; }
+        body.pdf-rendering #previewArea { display: block !important; }
+        body.pdf-rendering .pi-page {
+            width: 794px !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+        body.pdf-rendering .pi-header {
+            background: #1B2A4A !important;
+        }
+        body.pdf-rendering .pi-info-card {
+            background: #f4f5f9 !important;
+        }
+        body.pdf-rendering .pi-info-card.gold {
+            background: #f4f5f9 !important;
+        }
+        body.pdf-rendering .pi-customer {
+            background: #fef8ed !important;
+        }
+        body.pdf-rendering .pi-items-table thead th {
+            background: #1B2A4A !important;
+        }
+        body.pdf-rendering .pi-totals .tot-row {
+            background: #fafbfd !important;
+        }
+        body.pdf-rendering .pi-totals .tot-row.grand {
+            background: #1B2A4A !important;
+        }
+        body.pdf-rendering .pi-amount-words {
+            background: #fdf8ee !important;
+        }
+        body.pdf-rendering .pi-tc {
+            background: #f4f5f9 !important;
+        }
+        body.pdf-rendering .pi-bank {
+            background: #f0f1f6 !important;
+        }
+        body.pdf-rendering .pi-footer {
+            background: #f4f5f9 !important;
+        }
+
+        @media print {
+            body { background: #fff; }
+            .app-toolbar, .form-container { display: none !important; }
+            #previewArea { display: block !important; }
+            .pi-page { box-shadow: none; margin: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOOLBAR ===== -->
+<div class="app-toolbar">
+    <h1>Hycoat Systems — PI Generator</h1>
+    <div class="toolbar-actions">
+        <button class="btn-edit" id="btnEdit" style="display:none;" onclick="showForm()">&#9998; Edit</button>
+        <button class="btn-preview" id="btnPreview" onclick="showPreview()">&#9655; Preview</button>
+        <button class="btn-pdf" id="btnPdf" onclick="savePdf()">&#11015; Save as PDF</button>
+    </div>
+</div>
+
+<!-- ===== FORM ===== -->
+<div class="form-container" id="formArea">
+
+    <!-- Invoice Info -->
+    <div class="form-section">
+        <h2>Invoice Details</h2>
+        <div class="form-row three">
+            <div class="form-group">
+                <label>PI Number</label>
+                <input type="number" id="fPiNo" placeholder="e.g. 16">
+            </div>
+            <div class="form-group">
+                <label>PI Date</label>
+                <input type="date" id="fPiDate">
+            </div>
+            <div class="form-group">
+                <label>Company GST No.</label>
+                <input type="text" id="fCompanyGst" value="37AANCS8834N3ZB" disabled>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="form-section">
+        <h2>Customer Information</h2>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Party Name</label>
+                <input type="text" id="fPartyName" placeholder="M/s. Customer Name Pvt Ltd">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Address</label>
+                <textarea id="fPartyAddr" rows="3" placeholder="Full address..."></textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Customer GST No.</label>
+                <input type="text" id="fPartyGst" placeholder="e.g. 36AASFH6033N1ZS">
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items -->
+    <div class="form-section">
+        <h2>Line Items</h2>
+        <div class="tbl-scroll">
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="sl-cell">Sl.</th>
+                    <th>Description</th>
+                    <th class="qty-cell">Qty (Sqft)</th>
+                    <th class="rate-cell">Rate (₹)</th>
+                    <th class="amt-cell">Amount (₹)</th>
+                    <th class="action-cell"></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <!-- rows injected here -->
+            </tbody>
+        </table>
+        </div>
+        <button class="btn-add-row" onclick="addItemRow()">+ Add Line Item</button>
+
+        <!-- Summary -->
+        <div class="summary-grid">
+            <div class="form-group">
+                <label>Subtotal (₹)</label>
+                <input type="text" id="fSubtotal" readonly>
+            </div>
+            <div class="form-group">
+                <label>GST %</label>
+                <input type="number" id="fGstPct" value="18" min="0" max="100" step="0.5" oninput="recalc()">
+            </div>
+            <div class="form-group">
+                <label>GST Amount (₹)</label>
+                <input type="text" id="fGstAmt" readonly>
+            </div>
+            <div class="form-group">
+                <label>Round Off (₹)</label>
+                <input type="text" id="fRoundOff" readonly>
+            </div>
+            <div class="form-group">
+                <label>Grand Total (₹)</label>
+                <input type="text" id="fGrandTotal" readonly style="font-size:16px; color:#1B2A4A;">
+            </div>
+            <div class="form-group">
+                <label>Amount in Words</label>
+                <input type="text" id="fAmtWords" readonly>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms & Conditions -->
+    <div class="form-section">
+        <h2>Terms &amp; Conditions</h2>
+        <div class="form-group full">
+            <textarea id="fTerms" rows="8" disabled>1. Goods travel at buyer's risk; Hycoat Systems shall not be liable for transit-related loss or damage.
+2. Overdue payments attract interest at 21% per annum from the due date.
+3. Payment: 100% advance prior to dispatch.
+4. Delivery terms: Ex-Works (collection from our facility).
+5. Quoted area is based on dimensions provided; final billing will be computed on actual measured area of material received.</textarea>
+        </div>
+    </div>
+
+    <!-- Bank Details -->
+    <div class="form-section">
+        <h2>Bank Details</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Account Name</label>
+                <input type="text" id="fBankName" value="Hycoat Systems" disabled>
+            </div>
+            <div class="form-group">
+                <label>Account Number</label>
+                <input type="text" id="fBankAccNo" value="60546438729" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>IFSC Code</label>
+                <input type="text" id="fBankIfsc" value="MAHB0000955" disabled>
+            </div>
+            <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" id="fBankBankName" value="Bank Of Maharashtra" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Branch</label>
+                <input type="text" id="fBankBranch" value="Safilguda (R.K. Nagar, Malkajgiri)" disabled>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval -->
+    <div class="form-section">
+        <h2>Authorized Signatory</h2>
+        <div class="form-row three">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="fSigName" value="Mr. Manjunath Basavarajappa">
+            </div>
+            <div class="form-group">
+                <label>Designation</label>
+                <input type="text" id="fSigTitle" value="Managing Partner">
+            </div>
+            <div class="form-group">
+                <label>Contact</label>
+                <input type="text" id="fSigPhone" value="9247543008">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PREVIEW / PDF ===== -->
+<div id="previewArea">
+    <div class="pi-page" id="piPage">
+        <!-- filled by JS -->
+    </div>
+</div>
+
+<script>
+/* ===== STATE ===== */
+let itemCounter = 0;
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    // Default date = today
+    const today = new Date();
+    document.getElementById('fPiDate').value = today.toISOString().split('T')[0];
+    // Start with one empty row
+    addItemRow();
+});
+
+/* ===== LINE ITEMS ===== */
+function addItemRow() {
+    itemCounter++;
+    const tbody = document.getElementById('itemsBody');
+    const tr = document.createElement('tr');
+    tr.id = 'row_' + itemCounter;
+    const n = tbody.children.length + 1;
+    tr.innerHTML = `
+        <td class="sl-cell">${n}</td>
+        <td data-label="Description"><textarea class="i-part" rows="3" placeholder="Powder Coating&#10;Color- RAL 9005 Black&#10;Micron-60-80"></textarea></td>
+        <td class="qty-cell" data-label="Qty (Sqft)"><input type="number" class="i-qty" min="0" step="0.01" oninput="recalc()"></td>
+        <td class="rate-cell" data-label="Rate (₹)"><input type="number" class="i-rate" min="0" step="0.01" oninput="recalc()"></td>
+        <td class="amt-cell" data-label="Amount (₹)"><input type="text" class="i-amt" readonly></td>
+        <td class="action-cell"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function removeRow(btn) {
+    const tbody = document.getElementById('itemsBody');
+    if (tbody.children.length <= 1) return; // keep at least one row
+    btn.closest('tr').remove();
+    // renumber
+    Array.from(tbody.children).forEach((tr, i) => {
+        tr.querySelector('.sl-cell').textContent = i + 1;
+    });
+    recalc();
+}
+
+/* ===== CALCULATIONS ===== */
+function recalc() {
+    const rows = document.querySelectorAll('#itemsBody tr');
+    let subtotal = 0;
+    rows.forEach(tr => {
+        const qty = parseFloat(tr.querySelector('.i-qty')?.value) || 0;
+        const rate = parseFloat(tr.querySelector('.i-rate')?.value) || 0;
+        const amt = qty * rate;
+        const amtField = tr.querySelector('.i-amt');
+        if (amtField) amtField.value = amt ? formatINR(amt) : '';
+        subtotal += amt;
+    });
+
+    const gstPct = parseFloat(document.getElementById('fGstPct').value) || 0;
+    const gstAmt = subtotal * gstPct / 100;
+    const rawTotal = subtotal + gstAmt;
+    const roundedTotal = Math.round(rawTotal);
+    const roundOff = roundedTotal - rawTotal;
+
+    document.getElementById('fSubtotal').value = formatINR(subtotal);
+    document.getElementById('fGstAmt').value = formatINR(gstAmt);
+    document.getElementById('fRoundOff').value = (roundOff >= 0 ? '+' : '') + roundOff.toFixed(2);
+    document.getElementById('fGrandTotal').value = formatINR(roundedTotal);
+    document.getElementById('fAmtWords').value = numberToWordsINR(roundedTotal);
+}
+
+function formatINR(n) {
+    if (n === 0) return '0.00';
+    const parts = n.toFixed(2).split('.');
+    let intPart = parts[0];
+    const dec = parts[1];
+    const isNeg = intPart.startsWith('-');
+    if (isNeg) intPart = intPart.slice(1);
+    // Indian grouping: last 3 digits, then groups of 2
+    let result = '';
+    if (intPart.length <= 3) {
+        result = intPart;
+    } else {
+        result = intPart.slice(-3);
+        intPart = intPart.slice(0, -3);
+        while (intPart.length > 2) {
+            result = intPart.slice(-2) + ',' + result;
+            intPart = intPart.slice(0, -2);
+        }
+        result = intPart + ',' + result;
+    }
+    return (isNeg ? '-' : '') + result + '.' + dec;
+}
+
+/* ===== NUMBER TO WORDS (Indian) ===== */
+function numberToWordsINR(num) {
+    if (num === 0) return 'Zero Rupees Only.';
+    num = Math.round(num);
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+        'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+        'Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+    function twoDigit(n) {
+        if (n < 20) return ones[n];
+        return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '');
+    }
+    function threeDigit(n) {
+        if (n >= 100) {
+            return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + twoDigit(n % 100) : '');
+        }
+        return twoDigit(n);
+    }
+
+    let words = '';
+    if (num >= 10000000) {
+        words += threeDigit(Math.floor(num / 10000000)) + ' Crore ';
+        num %= 10000000;
+    }
+    if (num >= 100000) {
+        words += twoDigit(Math.floor(num / 100000)) + ' Lakh ';
+        num %= 100000;
+    }
+    if (num >= 1000) {
+        words += twoDigit(Math.floor(num / 1000)) + ' Thousand ';
+        num %= 1000;
+    }
+    if (num > 0) {
+        words += threeDigit(num) + ' ';
+    }
+    return words.trim() + ' Rupees Only.';
+}
+
+/* ===== PREVIEW ===== */
+function showPreview() {
+    buildPreview();
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('previewArea').style.display = 'block';
+    document.getElementById('btnPreview').style.display = 'none';
+    document.getElementById('btnEdit').style.display = '';
+}
+
+function showForm() {
+    document.getElementById('formArea').style.display = '';
+    document.getElementById('previewArea').style.display = 'none';
+    document.getElementById('btnPreview').style.display = '';
+    document.getElementById('btnEdit').style.display = 'none';
+}
+
+function val(id) { return document.getElementById(id).value.trim(); }
+
+function buildPreview() {
+    const piNo = val('fPiNo');
+    const piDate = val('fPiDate');
+    const formattedDate = piDate ? new Date(piDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+    const companyGst = val('fCompanyGst');
+    const partyName = val('fPartyName');
+    const partyAddr = val('fPartyAddr');
+    const partyGst = val('fPartyGst');
+    const gstPct = val('fGstPct');
+
+    // Collect items
+    const rows = document.querySelectorAll('#itemsBody tr');
+    let itemsHtml = '';
+    rows.forEach((tr, i) => {
+        const part = tr.querySelector('.i-part')?.value || '';
+        const qty = parseFloat(tr.querySelector('.i-qty')?.value) || 0;
+        const rate = parseFloat(tr.querySelector('.i-rate')?.value) || 0;
+        const amt = qty * rate;
+        if (!part && qty === 0 && rate === 0) return;
+        itemsHtml += `<tr>
+            <td class="sl">${i + 1}</td>
+            <td class="description">${escapeHtml(part).replace(/\n/g, '<br>')}</td>
+            <td class="r">${qty ? formatINR(qty) : ''}</td>
+            <td class="r">${rate ? formatINR(rate) : ''}</td>
+            <td class="r">${amt ? formatINR(amt) : ''}</td>
+        </tr>`;
+    });
+
+    const subtotal = val('fSubtotal');
+    const gstAmt = val('fGstAmt');
+    const roundOff = val('fRoundOff');
+    const grandTotal = val('fGrandTotal');
+    const amtWords = val('fAmtWords');
+
+    // Terms
+    const termsRaw = val('fTerms');
+    const termsLines = termsRaw.split('\n').filter(l => l.trim());
+    const termsHtml = termsLines.map(l => {
+        // Strip leading "1. " etc
+        return '<li>' + escapeHtml(l.replace(/^\d+\.\s*/, '')) + '</li>';
+    }).join('');
+
+    // Bank
+    const bankName = val('fBankName');
+    const bankAccNo = val('fBankAccNo');
+    const bankIfsc = val('fBankIfsc');
+    const bankBankName = val('fBankBankName');
+    const bankBranch = val('fBankBranch');
+
+    // Signature
+    const sigName = val('fSigName');
+    const sigTitle = val('fSigTitle');
+    const sigPhone = val('fSigPhone');
+
+    document.getElementById('piPage').innerHTML = `
+        <!-- Header Banner -->
+        <div class="pi-header">
+            <div class="logo-area">
+                <img src='logo.PNG' onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'font-weight:800;color:#1B2A4A;font-size:11px;\\'>HYCOAT</div>';" alt="Hycoat Systems Logo">
+            </div>
+            <div class="company-info">
+                <div class="company-name">Hycoat Systems</div>
+                <div class="company-tagline">Shielding Surfaces &bull; Extending Life</div>
+                <div class="company-contact">
+                    Plot No. 38, Sy. No. 249, Phase-II, IDA Cherlapally, Hyderabad - 500051, Telangana<br>
+                    Cell: 9247543008 &nbsp;|&nbsp; GSTIN: ${escapeHtml(companyGst)}
+                </div>
+            </div>
+            <div class="doc-badge">
+                <div class="doc-title">Proforma Invoice</div>
+                ${piNo ? `<div class="doc-number">PI # ${escapeHtml(piNo)}</div>` : ''}
+            </div>
+        </div>
+
+        <div class="pi-body">
+            <!-- Info cards -->
+            <div class="pi-info-row">
+                <div class="pi-info-card">
+                    <div class="card-label">Invoice Details</div>
+                    <div class="card-row"><span class="lbl">PI No.</span><span class="val">${escapeHtml(piNo)}</span></div>
+                    <div class="card-row"><span class="lbl">Date</span><span class="val">${escapeHtml(formattedDate)}</span></div>
+                    <div class="card-row"><span class="lbl">GST No.</span><span class="val">${escapeHtml(companyGst)}</span></div>
+                </div>
+                <div class="pi-info-card gold">
+                    <div class="card-label">Payment Terms</div>
+                    <div class="card-row"><span class="lbl">Mode</span><span class="val">Advance</span></div>
+                    <div class="card-row"><span class="lbl">Incoterm</span><span class="val">Ex-Works</span></div>
+                </div>
+            </div>
+
+            <!-- Customer -->
+            <div class="pi-customer">
+                <div class="card-label">Bill To</div>
+                <div class="party-name">${escapeHtml(partyName)}</div>
+                <div class="party-addr">${escapeHtml(partyAddr)}</div>
+                ${partyGst ? `<div class="party-gst">GSTIN: <strong>${escapeHtml(partyGst)}</strong></div>` : ''}
+            </div>
+
+            <!-- Items Table -->
+            <table class="pi-items-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px; text-align:center;">Sl.</th>
+                        <th>Description</th>
+                        <th class="r" style="width:110px;">Qty (Sqft)</th>
+                        <th class="r" style="width:100px;">Rate (&#8377;)</th>
+                        <th class="r" style="width:120px;">Amount (&#8377;)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHtml}
+                </tbody>
+            </table>
+
+            <!-- Totals -->
+            <div class="pi-totals-wrap">
+                <div class="pi-totals">
+                    <div class="tot-row"><span class="tot-label">Subtotal</span><span class="tot-value">&#8377; ${escapeHtml(subtotal)}</span></div>
+                    <div class="tot-row"><span class="tot-label">GST @ ${escapeHtml(gstPct)}%</span><span class="tot-value">&#8377; ${escapeHtml(gstAmt)}</span></div>
+                    <div class="tot-row"><span class="tot-label">Round Off</span><span class="tot-value">${escapeHtml(roundOff)}</span></div>
+                    <div class="tot-row grand"><span class="tot-label">Grand Total</span><span class="tot-value">&#8377; ${escapeHtml(grandTotal)}</span></div>
+                </div>
+            </div>
+
+            <!-- Amount in words -->
+            <div class="pi-amount-words">
+                <strong>Amount in words:</strong> ${escapeHtml(amtWords)}
+            </div>
+
+            <!-- T&C + Bank side by side -->
+            <div class="pi-bottom">
+                <div class="pi-tc">
+                    <h3>Terms &amp; Conditions</h3>
+                    <ol>${termsHtml}</ol>
+                </div>
+                <div class="pi-bank">
+                    <h3>Bank Details for Payment</h3>
+                    <div class="bank-row"><span class="blbl">A/c Name</span><span class="bval">${escapeHtml(bankName)}</span></div>
+                    <div class="bank-row"><span class="blbl">A/c No.</span><span class="bval">${escapeHtml(bankAccNo)}</span></div>
+                    <div class="bank-row"><span class="blbl">IFSC</span><span class="bval">${escapeHtml(bankIfsc)}</span></div>
+                    <div class="bank-row"><span class="blbl">Bank</span><span class="bval">${escapeHtml(bankBankName)}</span></div>
+                    <div class="bank-row"><span class="blbl">Branch</span><span class="bval">${escapeHtml(bankBranch)}</span></div>
+                </div>
+            </div>
+
+            <!-- Signature -->
+             <div class="pi-signature">
+                <div class="sig-label">Checked By &amp; Approved By</div>
+                <div class="sig-name">${escapeHtml(sigName)}</div>
+                <div class="sig-title">${escapeHtml(sigTitle)}</div>
+                <div class="sig-phone">Cell: ${escapeHtml(sigPhone)}</div>
+            </div>
+        </div>
+
+        <div class="pi-footer">
+            <div class="footer-brand">Hycoat Systems</div>
+            <div class="footer-tagline">This is a computer-generated proforma invoice. No signature is required.</div>
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text || '';
+    return d.innerHTML;
+}
+
+/* ===== PDF EXPORT ===== */
+function savePdf() {
+    buildPreview();
+    const wasInFormMode = document.getElementById('btnEdit').style.display === 'none';
+
+    // Apply PDF rendering class for clean capture
+    document.body.classList.add('pdf-rendering');
+    // Scroll to top to avoid offset issues
+    window.scrollTo(0, 0);
+
+    const element = document.getElementById('piPage');
+    const piNo = val('fPiNo') || 'DRAFT';
+    const partyName = val('fPartyName') || 'Customer';
+    const safeName = partyName.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_').substring(0, 30);
+    const filename = `PI-${piNo}-${safeName}.pdf`;
+
+    const opt = {
+        margin: [0, 0, 0, 0],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0,
+            windowWidth: 794,
+            width: 794,
+            backgroundColor: '#ffffff'
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['.pi-header', '.pi-info-row', '.pi-customer', '.pi-items-table', '.pi-totals-wrap', '.pi-amount-words', '.pi-bottom', '.pi-signature'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.body.classList.remove('pdf-rendering');
+        if (wasInFormMode) {
+            document.getElementById('previewArea').style.display = 'none';
+        }
+    }).catch(() => {
+        document.body.classList.remove('pdf-rendering');
+    });
+}
+</script>
+</body>
+</html>
