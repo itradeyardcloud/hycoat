@@ -8,6 +8,7 @@ using HycoatApi.Services.Masters;
 using HycoatApi.Services.Sales;
 using HycoatApi.Services.MaterialInward;
 using HycoatApi.Services.Planning;
+using HycoatApi.Services.Production;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +122,10 @@ builder.Services.AddScoped<IIncomingInspectionService, IncomingInspectionService
 builder.Services.AddScoped<IProductionTimeCalcService, ProductionTimeCalcService>();
 builder.Services.AddScoped<IProductionWorkOrderService, ProductionWorkOrderService>();
 builder.Services.AddScoped<IProductionScheduleService, ProductionScheduleService>();
+
+// Production Services
+builder.Services.AddScoped<IPretreatmentLogService, PretreatmentLogService>();
+builder.Services.AddScoped<IProductionLogService, ProductionLogService>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
