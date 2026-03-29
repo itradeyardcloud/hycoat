@@ -76,12 +76,20 @@ const InvoiceFormPage = lazy(() => import('./pages/dispatch/InvoiceFormPage'));
 
 // Purchase
 const PowderIndentsPage = lazy(() => import('./pages/purchase/PowderIndentsPage'));
+const PowderIndentFormPage = lazy(() => import('./pages/purchase/PowderIndentFormPage'));
 const PurchaseOrdersPage = lazy(() => import('./pages/purchase/PurchaseOrdersPage'));
+const PurchaseOrderFormPage = lazy(() => import('./pages/purchase/PurchaseOrderFormPage'));
 const GRNPage = lazy(() => import('./pages/purchase/GRNPage'));
+const GRNFormPage = lazy(() => import('./pages/purchase/GRNFormPage'));
 const PowderStockPage = lazy(() => import('./pages/purchase/PowderStockPage'));
 
 // Reports
 const ReportsPage = lazy(() => import('./pages/reports/ReportsPage'));
+const OrderTrackerPage = lazy(() => import('./pages/reports/OrderTrackerPage'));
+const ProductionReportPage = lazy(() => import('./pages/reports/ProductionReportPage'));
+const QualityReportPage = lazy(() => import('./pages/reports/QualityReportPage'));
+const CustomerHistoryPage = lazy(() => import('./pages/reports/CustomerHistoryPage'));
+const DispatchRegisterPage = lazy(() => import('./pages/reports/DispatchRegisterPage'));
 
 function App() {
   useEffect(() => {
@@ -200,14 +208,25 @@ function App() {
             {/* Purchase */}
             <Route element={<ProtectedRoute allowedDepartments={['Purchase']} />}>
               <Route path="/purchase/indents" element={<PowderIndentsPage />} />
+              <Route path="/purchase/indents/new" element={<PowderIndentFormPage />} />
+              <Route path="/purchase/indents/:id" element={<PowderIndentFormPage />} />
               <Route path="/purchase/orders" element={<PurchaseOrdersPage />} />
+              <Route path="/purchase/orders/new" element={<PurchaseOrderFormPage />} />
+              <Route path="/purchase/orders/:id" element={<PurchaseOrderFormPage />} />
               <Route path="/purchase/grn" element={<GRNPage />} />
+              <Route path="/purchase/grn/new" element={<GRNFormPage />} />
+              <Route path="/purchase/grn/:id" element={<GRNFormPage />} />
               <Route path="/purchase/stock" element={<PowderStockPage />} />
             </Route>
 
             {/* Reports — Admin + Leader */}
             <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} />}>
               <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/reports/order-tracker" element={<OrderTrackerPage />} />
+              <Route path="/reports/production" element={<ProductionReportPage />} />
+              <Route path="/reports/quality" element={<QualityReportPage />} />
+              <Route path="/reports/customer" element={<CustomerHistoryPage />} />
+              <Route path="/reports/dispatch" element={<DispatchRegisterPage />} />
             </Route>
 
             {/* Admin — Admin only */}

@@ -11,6 +11,9 @@ using HycoatApi.Services.Planning;
 using HycoatApi.Services.Quality;
 using HycoatApi.Services.Production;
 using HycoatApi.Services.Dispatch;
+using HycoatApi.Services.Purchase;
+using HycoatApi.Services.Dashboard;
+using HycoatApi.Services.Reports;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -140,6 +143,18 @@ builder.Services.AddScoped<IPackingListService, PackingListService>();
 builder.Services.AddScoped<IDeliveryChallanService, DeliveryChallanService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IDocumentBundleEmailService, DocumentBundleEmailService>();
+
+// Purchase Services
+builder.Services.AddScoped<IPowderIndentService, PowderIndentService>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+builder.Services.AddScoped<IGRNService, GRNService>();
+builder.Services.AddScoped<IPowderStockService, PowderStockService>();
+builder.Services.AddScoped<PurchaseOrderPdfService>();
+
+// Dashboard & Reports Services
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ExcelExportService>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
