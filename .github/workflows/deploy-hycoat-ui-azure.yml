@@ -53,6 +53,8 @@ jobs:
           VITE_API_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_url || vars.HYCOAT_UI_VITE_API_URL || 'https://hycoat-dev-api.azurewebsites.net' }}
           VITE_APP_NAME: HyCoat ERP
           VITE_BYPASS_AUTH: 'false'
+          VITE_AZURE_AD_REDIRECT_URI: ${{ vars.VITE_AZURE_AD_REDIRECT_URI || 'http://localhost:5173' }}
+          VITE_AZURE_AD_POST_LOGOUT_REDIRECT_URI: ${{ vars.VITE_AZURE_AD_POST_LOGOUT_REDIRECT_URI || 'http://localhost:5173' }}
         run: npm run build
 
       - name: Add IIS rewrite config for SPA
