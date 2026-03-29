@@ -16,23 +16,24 @@ export default function ProtectedRoute({ allowedRoles, allowedDepartments, allow
     return <AuthRequired message={authError} onSignIn={startLogin} />;
   }
 
-  // Role check
-  if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    return <AccessDenied />;
-  }
+  const isAdmin = user?.role === 'Admin';
+  if (!isAdmin) {
+    const hasRoleRule = Array.isArray(allowedRoles) && allowedRoles.length > 0;
+    const hasDepartmentRule = Array.isArray(allowedDepartments) && allowedDepartments.length > 0;
+    const hasGroupRule = Array.isArray(allowedGroups) && allowedGroups.length > 0;
+    const hasAnyRule = hasRoleRule || hasDepartmentRule || hasGroupRule;
 
-  if (allowedGroups?.length) {
+    const hasRoleAccess = hasRoleRule && allowedRoles.includes(user?.role);
+
+    const isPrivilegedDepartmentBypass = user?.role === 'Leader';
+    const hasDepartmentAccess = hasDepartmentRule
+      && (isPrivilegedDepartmentBypass || allowedDepartments.includes(user?.department));
+
     const userGroups = user?.groups || [];
-    const hasGroup = allowedGroups.some((group) => userGroups.includes(group));
-    if (!hasGroup && user?.role !== 'Admin') {
-      return <AccessDenied />;
-    }
-  }
+    const hasGroupAccess = hasGroupRule
+      && allowedGroups.some((group) => userGroups.includes(group));
 
-  // Department check — Admin and Leader bypass
-  if (allowedDepartments) {
-    const isPrivileged = user?.role === 'Admin' || user?.role === 'Leader';
-    if (!isPrivileged && !allowedDepartments.includes(user?.department)) {
+    if (hasAnyRule && !hasRoleAccess && !hasDepartmentAccess && !hasGroupAccess) {
       return <AccessDenied />;
     }
   }
