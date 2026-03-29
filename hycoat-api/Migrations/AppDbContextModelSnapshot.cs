@@ -32,16 +32,18 @@ namespace HycoatApi.Migrations
 
                     b.Property<string>("Action")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("ChangedColumns")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EntityId")
-                        .HasColumnType("int");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("EntityType")
+                    b.Property<string>("EntityName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -70,7 +72,7 @@ namespace HycoatApi.Migrations
 
                     b.HasIndex("Timestamp");
 
-                    b.HasIndex("EntityType", "EntityId");
+                    b.HasIndex("EntityName", "EntityId");
 
                     b.ToTable("AuditLogs");
                 });
@@ -107,14 +109,19 @@ namespace HycoatApi.Migrations
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("StoredPath")
                         .IsRequired()
@@ -134,7 +141,13 @@ namespace HycoatApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("UploadedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UploadedByUserId");
 
                     b.HasIndex("EntityType", "EntityId");
 
@@ -160,13 +173,6 @@ namespace HycoatApi.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EntityId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EntityType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -181,9 +187,12 @@ namespace HycoatApi.Migrations
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("RecipientUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferenceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -192,8 +201,8 @@ namespace HycoatApi.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -201,9 +210,15 @@ namespace HycoatApi.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipientUserId");
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId", "IsRead");
 
                     b.ToTable("Notifications");
                 });
@@ -710,7 +725,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-admin",
-                            ConcurrencyStamp = "8b4920ef-d62d-46be-b87d-9c7463f06c48",
+                            ConcurrencyStamp = "932695cf-b3ef-4cbe-8b95-3ea14ee48fd5",
                             Description = "Full system access",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
@@ -718,7 +733,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-leader",
-                            ConcurrencyStamp = "19802e43-7127-4893-b255-f046a735e022",
+                            ConcurrencyStamp = "dfa8c57f-bfd0-4f66-875f-b77925eb99f7",
                             Description = "Department leader access",
                             Name = "Leader",
                             NormalizedName = "LEADER"
@@ -726,7 +741,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-user",
-                            ConcurrencyStamp = "38d032ef-3409-4235-afef-b7609beae348",
+                            ConcurrencyStamp = "2eec71ae-27c3-438b-9694-c7d400fc5864",
                             Description = "Standard user access",
                             Name = "User",
                             NormalizedName = "USER"
@@ -822,7 +837,7 @@ namespace HycoatApi.Migrations
                         {
                             Id = "user-admin",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6f4fec49-dc91-4d3a-89e2-e3695f9650a3",
+                            ConcurrencyStamp = "fd7f422d-d7ff-402b-bfc9-914737cdeede",
                             Department = "Admin",
                             Email = "admin@hycoat.com",
                             EmailConfirmed = true,
@@ -831,7 +846,7 @@ namespace HycoatApi.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@HYCOAT.COM",
                             NormalizedUserName = "ADMIN@HYCOAT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAELxNYfLuG2jch0CqwBvxyXfnrvo3Ja0Vpm0QQrDBfQ3FnpClf+fNNu2oXzICiD+HKw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKlLWV15Bqluud7hl3g+P5fxIu3XdyQ0xtwW9mU2+Bc+zX4pwgd1CFNoVFIK44nDJw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "STATIC-SECURITY-STAMP-FOR-SEED",
                             TwoFactorEnabled = false,
@@ -3314,15 +3329,25 @@ namespace HycoatApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("HycoatApi.Models.Common.FileAttachment", b =>
+                {
+                    b.HasOne("HycoatApi.Models.Identity.AppUser", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("UploadedByUser");
+                });
+
             modelBuilder.Entity("HycoatApi.Models.Common.Notification", b =>
                 {
-                    b.HasOne("HycoatApi.Models.Identity.AppUser", "Recipient")
+                    b.HasOne("HycoatApi.Models.Identity.AppUser", "User")
                         .WithMany()
-                        .HasForeignKey("RecipientUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Recipient");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HycoatApi.Models.Common.PushSubscription", b =>

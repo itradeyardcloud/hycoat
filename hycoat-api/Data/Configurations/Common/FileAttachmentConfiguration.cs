@@ -8,12 +8,20 @@ public class FileAttachmentConfiguration : IEntityTypeConfiguration<FileAttachme
 {
     public void Configure(EntityTypeBuilder<FileAttachment> builder)
     {
-        builder.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.FileName).IsRequired().HasMaxLength(300);
+        builder.Property(e => e.StoredFileName).IsRequired().HasMaxLength(300);
         builder.Property(e => e.StoredPath).IsRequired().HasMaxLength(500);
         builder.Property(e => e.ContentType).HasMaxLength(100);
         builder.Property(e => e.EntityType).IsRequired().HasMaxLength(100);
+        builder.Property(e => e.Category).HasMaxLength(50);
+        builder.Property(e => e.UploadedByUserId).HasMaxLength(450);
         builder.Property(e => e.UploadedBy).HasMaxLength(100);
 
         builder.HasIndex(e => new { e.EntityType, e.EntityId });
+
+        builder.HasOne(e => e.UploadedByUser)
+            .WithMany()
+            .HasForeignKey(e => e.UploadedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

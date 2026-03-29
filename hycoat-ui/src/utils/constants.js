@@ -11,6 +11,8 @@ export const PROCESS_TYPES = [
 export const ORDER_STATUSES = {
   WORK_ORDER: ['Created', 'MaterialAwaited', 'MaterialReceived', 'InProduction', 'QAComplete', 'Dispatched', 'Invoiced', 'Closed'],
   INQUIRY: ['New', 'QuotationSent', 'BOMReceived', 'PISent', 'Confirmed', 'Closed', 'Lost'],
+  QUOTATION: ['Draft', 'Sent', 'Accepted', 'Rejected', 'Expired'],
+  PROFORMA_INVOICE: ['Draft', 'Sent', 'Accepted', 'Rejected'],
 };
 
 export const GST_RATE = 0.18;

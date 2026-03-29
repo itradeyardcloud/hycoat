@@ -24,6 +24,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
     public DbSet<FileAttachment> FileAttachments => Set<FileAttachment>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
 
     // Masters
     public DbSet<Customer> Customers => Set<Customer>();

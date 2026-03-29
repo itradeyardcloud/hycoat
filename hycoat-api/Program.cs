@@ -14,6 +14,11 @@ using HycoatApi.Services.Dispatch;
 using HycoatApi.Services.Purchase;
 using HycoatApi.Services.Dashboard;
 using HycoatApi.Services.Reports;
+using HycoatApi.Services.Notifications;
+using HycoatApi.Services.Audit;
+using HycoatApi.Services.Files;
+using HycoatApi.Services.Auth;
+using HycoatApi.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -54,8 +59,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
 
 // Identity
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
@@ -80,7 +86,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -105,19 +112,46 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)),
         ClockSkew = TimeSpan.Zero
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrWhiteSpace(accessToken) &&
+                path.StartsWithSegments("/hubs/notifications"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // Services
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISectionProfileService, SectionProfileService>();
 builder.Services.AddScoped<IPowderColorService, PowderColorService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IProcessTypeService, ProcessTypeService>();
 builder.Services.AddScoped<IProductionUnitService, ProductionUnitService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 // Sales Services
 builder.Services.AddScoped<IInquiryService, InquiryService>();
+builder.Services.AddScoped<IQuotationService, QuotationService>();
+builder.Services.AddScoped<QuotationPdfService>();
+builder.Services.AddScoped<IProformaInvoiceService, ProformaInvoiceService>();
+builder.Services.AddScoped<PIPdfService>();
+builder.Services.AddScoped<IWorkOrderService, WorkOrderService>();
 
 // Material Inward Services
 builder.Services.AddScoped<IMaterialInwardService, MaterialInwardService>();
@@ -159,6 +193,7 @@ builder.Services.AddScoped<ExcelExportService>();
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
 
 // Dev auth bypass — set "BypassAuth": true in appsettings.Development.json
 var bypassAuth = builder.Configuration.GetValue<bool>("BypassAuth");
@@ -167,8 +202,6 @@ if (bypassAuth)
     Log.Warning(">>> AUTH BYPASS IS ENABLED — all endpoints are open <<<");
     builder.Services.AddSingleton<IAuthorizationHandler, DevBypassAuthorizationHandler>();
 }
-
-// TODO: Add SignalR (see 10-notifications/00-notification-system.md)
 
 var app = builder.Build();
 
@@ -193,5 +226,6 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
