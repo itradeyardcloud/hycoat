@@ -36,7 +36,7 @@ Workflow file:
 
 Deployment flow:
 
-1. Triggered on push to `main` when files under `hycoat-ui/` change.
+1. Triggered on push to `main` or `master` when files under `hycoat-ui/` change.
 2. Runs `npm ci` and `npm run build` in `hycoat-ui`.
 3. Copies `hycoat-ui/web.config` into `dist/` for SPA routing on IIS.
 4. Deploys `dist/` to Azure Web App using `azure/webapps-deploy`.
