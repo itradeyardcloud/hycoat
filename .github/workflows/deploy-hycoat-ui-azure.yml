@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 env:
-  AZURE_WEBAPP_NAME: hycoat-dev-ui-win
+  AZURE_WEBAPP_NAME: hycoat-dev-ui
   WORKING_DIRECTORY: hycoat-ui
   BUILD_OUTPUT_DIRECTORY: dist
 

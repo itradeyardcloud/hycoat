@@ -57,7 +57,7 @@ If `HYCOAT_UI_VITE_API_URL` is not set, workflow defaults to:
 
 ### Target Azure resources
 
-- Web App name expected by workflow: `hycoat-dev-ui-win`
+- Web App name expected by workflow: `hycoat-dev-ui`
 - Resource group: `hycoat-dev-si-rg`
 
 Update `AZURE_WEBAPP_NAME` in workflow if your UI web app uses a different name.
