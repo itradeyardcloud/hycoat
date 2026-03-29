@@ -1,6 +1,14 @@
 name: CI - hycoat-ui and hycoat-api
 
 on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'hycoat-api/**'
+      - 'hycoat-ui/**'
+      - '.github/workflows/ci-hycoat.yml'
   workflow_dispatch:
 
 permissions:

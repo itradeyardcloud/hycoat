@@ -1,6 +1,13 @@
 name: Deploy hycoat-ui to Azure App Service
 
 on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'hycoat-ui/**'
+      - '.github/workflows/deploy-hycoat-ui-azure.yml'
   workflow_dispatch:
     inputs:
       api_url:
