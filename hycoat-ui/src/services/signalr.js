@@ -28,6 +28,7 @@ export async function startNotificationConnection(onReceiveNotification) {
     connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
         accessTokenFactory: async () => (await acquireAccessToken()) || '',
+        withCredentials: false,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)
