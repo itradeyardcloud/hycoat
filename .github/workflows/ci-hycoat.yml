@@ -1,22 +1,6 @@
 name: CI - hycoat-ui and hycoat-api
 
 on:
-  pull_request:
-    branches:
-      - main
-      - master
-    paths:
-      - 'hycoat-api/**'
-      - 'hycoat-ui/**'
-      - '.github/workflows/ci-hycoat.yml'
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'hycoat-api/**'
-      - 'hycoat-ui/**'
-      - '.github/workflows/ci-hycoat.yml'
   workflow_dispatch:
 
 permissions:
@@ -27,29 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      api: ${{ steps.filter.outputs.api }}
-      ui: ${{ steps.filter.outputs.ui }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Detect changed areas
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            api:
-              - 'hycoat-api/**'
-            ui:
-              - 'hycoat-ui/**'
-
   api-ci:
     name: API - Restore, Build, Test
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.api == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -84,8 +47,6 @@ jobs:
 
   ui-ci:
     name: UI - Install, Lint, Build
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.ui == 'true' }}
     runs-on: ubuntu-latest
 
     defaults:
