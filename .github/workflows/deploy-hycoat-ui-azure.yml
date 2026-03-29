@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - master
     paths:
       - 'hycoat-ui/**'
       - '.github/workflows/deploy-hycoat-ui-azure.yml'
