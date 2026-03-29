@@ -10,10 +10,12 @@ import StoreIcon from '@mui/icons-material/Store';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 export const navigationItems = [
   { label: 'Dashboard', icon: DashboardIcon, path: '/dashboard', departments: '*' },
   { label: 'Notifications', icon: NotificationsIcon, path: '/notifications', departments: '*' },
+  { label: 'Order Cycle', icon: AccountTreeIcon, path: '/order-cycle', departments: '*' },
   {
     label: 'Masters',
     icon: SettingsIcon,

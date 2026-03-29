@@ -83,6 +83,9 @@ const GRNPage = lazy(() => import('./pages/purchase/GRNPage'));
 const GRNFormPage = lazy(() => import('./pages/purchase/GRNFormPage'));
 const PowderStockPage = lazy(() => import('./pages/purchase/PowderStockPage'));
 
+// Order Cycle
+const OrderCyclePage = lazy(() => import('./pages/OrderCyclePage'));
+
 // Reports
 const ReportsPage = lazy(() => import('./pages/reports/ReportsPage'));
 const OrderTrackerPage = lazy(() => import('./pages/reports/OrderTrackerPage'));
@@ -112,6 +115,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/order-cycle" element={<OrderCyclePage />} />
 
             {/* Masters — Admin + Leader only */}
             <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} />}>
