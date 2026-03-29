@@ -7,6 +7,7 @@ import QualityDashboardPage from './QualityDashboardPage';
 import SCMDashboardPage from './SCMDashboardPage';
 import PurchaseDashboardPage from './PurchaseDashboardPage';
 import FinanceDashboardPage from './FinanceDashboardPage';
+import { Alert, Box } from '@mui/material';
 
 const DEPARTMENT_DASHBOARDS = {
   Sales: SalesDashboardPage,
@@ -28,5 +29,9 @@ export default function DashboardPage() {
   const DeptDashboard = DEPARTMENT_DASHBOARDS[user?.department];
   if (DeptDashboard) return <DeptDashboard />;
 
-  return <AdminDashboardPage />;
+  return (
+    <Box sx={{ p: 2 }}>
+      <Alert severity="warning">Your account does not have a dashboard assigned. Contact an administrator.</Alert>
+    </Box>
+  );
 }

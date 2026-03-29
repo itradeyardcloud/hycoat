@@ -5,6 +5,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import useAuthStore from './stores/authStore';
+import { ACCESS_GROUPS } from './constants/accessGroups';
 
 // Lazy-loaded pages
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
@@ -80,6 +81,7 @@ const PowderStockPage = lazy(() => import('./pages/purchase/PowderStockPage'));
 
 // Order Cycle
 const OrderCyclePage = lazy(() => import('./pages/OrderCyclePage'));
+const GuidePage = lazy(() => import('./pages/GuidePage'));
 
 // Reports
 const ReportsPage = lazy(() => import('./pages/reports/ReportsPage'));
@@ -116,9 +118,10 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/order-cycle" element={<OrderCyclePage />} />
+            <Route path="/guide" element={<GuidePage />} />
 
             {/* Masters — Admin + Leader only */}
-            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} allowedGroups={ACCESS_GROUPS.MASTERS} />}>
               <Route path="/masters/customers" element={<CustomersPage />} />
               <Route path="/masters/customers/new" element={<CustomerFormPage />} />
               <Route path="/masters/customers/:id/edit" element={<CustomerFormPage />} />
@@ -136,7 +139,7 @@ function App() {
             </Route>
 
             {/* Sales */}
-            <Route element={<ProtectedRoute allowedDepartments={['Sales']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['Sales']} allowedGroups={ACCESS_GROUPS.SALES} />}>
               <Route path="/sales/inquiries" element={<InquiriesPage />} />
               <Route path="/sales/inquiries/new" element={<InquiryFormPage />} />
               <Route path="/sales/inquiries/:id" element={<InquiryFormPage />} />
@@ -153,7 +156,7 @@ function App() {
             </Route>
 
             {/* Material Inward — SCM */}
-            <Route element={<ProtectedRoute allowedDepartments={['SCM']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['SCM']} allowedGroups={ACCESS_GROUPS.SCM} />}>
               <Route path="/material-inward/inwards" element={<MaterialInwardsPage />} />
               <Route path="/material-inward/inwards/new" element={<MaterialInwardFormPage />} />
               <Route path="/material-inward/inwards/:id" element={<MaterialInwardFormPage />} />
@@ -163,7 +166,7 @@ function App() {
             </Route>
 
             {/* PPC */}
-            <Route element={<ProtectedRoute allowedDepartments={['PPC']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['PPC']} allowedGroups={ACCESS_GROUPS.PPC} />}>
               <Route path="/ppc/work-orders" element={<ProductionWorkOrdersPage />} />
               <Route path="/ppc/work-orders/new" element={<PWOFormPage />} />
               <Route path="/ppc/work-orders/:id" element={<PWOFormPage />} />
@@ -171,7 +174,7 @@ function App() {
             </Route>
 
             {/* Production */}
-            <Route element={<ProtectedRoute allowedDepartments={['Production']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['Production']} allowedGroups={ACCESS_GROUPS.PRODUCTION} />}>
               <Route path="/production/pretreatment" element={<PretreatmentLogsPage />} />
               <Route path="/production/pretreatment/new" element={<PretreatmentLogFormPage />} />
               <Route path="/production/pretreatment/:id" element={<PretreatmentLogFormPage />} />
@@ -182,7 +185,7 @@ function App() {
             </Route>
 
             {/* Quality */}
-            <Route element={<ProtectedRoute allowedDepartments={['QA']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['QA']} allowedGroups={ACCESS_GROUPS.QUALITY} />}>
               <Route path="/quality/in-process" element={<InProcessInspectionsPage />} />
               <Route path="/quality/in-process/new" element={<InProcessInspectionFormPage />} />
               <Route path="/quality/in-process/:id" element={<InProcessInspectionFormPage />} />
@@ -198,7 +201,7 @@ function App() {
             </Route>
 
             {/* Dispatch — SCM */}
-            <Route element={<ProtectedRoute allowedDepartments={['SCM']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['SCM']} allowedGroups={ACCESS_GROUPS.SCM} />}>
               <Route path="/dispatch/packing-lists" element={<PackingListsPage />} />
               <Route path="/dispatch/packing-lists/new" element={<PackingListFormPage />} />
               <Route path="/dispatch/packing-lists/:id" element={<PackingListFormPage />} />
@@ -211,7 +214,7 @@ function App() {
             </Route>
 
             {/* Purchase */}
-            <Route element={<ProtectedRoute allowedDepartments={['Purchase']} />}>
+            <Route element={<ProtectedRoute allowedDepartments={['Purchase']} allowedGroups={ACCESS_GROUPS.PURCHASE} />}>
               <Route path="/purchase/indents" element={<PowderIndentsPage />} />
               <Route path="/purchase/indents/new" element={<PowderIndentFormPage />} />
               <Route path="/purchase/indents/:id" element={<PowderIndentFormPage />} />
@@ -225,7 +228,7 @@ function App() {
             </Route>
 
             {/* Reports — Admin + Leader */}
-            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Leader']} allowedGroups={ACCESS_GROUPS.REPORTS} />}>
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/reports/order-tracker" element={<OrderTrackerPage />} />
               <Route path="/reports/production" element={<ProductionReportPage />} />
@@ -236,7 +239,7 @@ function App() {
             </Route>
 
             {/* Admin — Admin only */}
-            <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['Admin']} allowedGroups={ACCESS_GROUPS.ADMIN} />}>
               <Route path="/admin/audit-logs" element={<AuditLogPage />} />
             </Route>
           </Route>

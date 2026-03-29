@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import useAuthStore from '../../stores/authStore';
 import LoadingSpinner from './LoadingSpinner';
 
-export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
+export default function ProtectedRoute({ allowedRoles, allowedDepartments, allowedGroups }) {
   const { isAuthenticated, isInitializing, user, authError, startLogin } = useAuthStore();
 
   if (isInitializing) {
@@ -19,6 +19,14 @@ export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
   // Role check
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <AccessDenied />;
+  }
+
+  if (allowedGroups?.length) {
+    const userGroups = user?.groups || [];
+    const hasGroup = allowedGroups.some((group) => userGroups.includes(group));
+    if (!hasGroup && user?.role !== 'Admin') {
+      return <AccessDenied />;
+    }
   }
 
   // Department check — Admin and Leader bypass
@@ -35,6 +43,7 @@ export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
 ProtectedRoute.propTypes = {
   allowedRoles: PropTypes.arrayOf(PropTypes.string),
   allowedDepartments: PropTypes.arrayOf(PropTypes.string),
+  allowedGroups: PropTypes.arrayOf(PropTypes.string),
 };
 
 function AccessDenied() {

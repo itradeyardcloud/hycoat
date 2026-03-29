@@ -56,6 +56,7 @@ const useAuthStore = create((set) => ({
           fullName: 'Dev Admin',
           role: 'Admin',
           department: 'Development',
+          groups: ['Dashboard.All'],
         },
         isAuthenticated: true,
         isInitializing: false,
@@ -124,6 +125,7 @@ const useAuthStore = create((set) => ({
 function mapMsalAccountToUser(account) {
   const claims = account?.idTokenClaims || {};
   const roles = normalizeRoles(claims.roles || claims.role);
+  const groups = normalizeGroups(claims.groups);
 
   return {
     id: claims.oid || claims.objectidentifier || account.localAccountId,
@@ -131,6 +133,7 @@ function mapMsalAccountToUser(account) {
     fullName: claims.name || account.name || account.username,
     role: resolveRole(roles),
     department: claims.department || '',
+    groups,
   };
 }
 
@@ -151,6 +154,18 @@ function resolveRole(roles) {
   if (roles.includes('Leader')) return 'Leader';
   if (roles.includes('User')) return 'User';
   return 'User';
+}
+
+function normalizeGroups(groups) {
+  if (Array.isArray(groups)) {
+    return groups.filter((g) => typeof g === 'string' && g.trim());
+  }
+
+  if (typeof groups === 'string' && groups.trim()) {
+    return [groups.trim()];
+  }
+
+  return [];
 }
 
 function getRedirectErrorMessage() {

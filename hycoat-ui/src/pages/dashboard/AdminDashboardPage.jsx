@@ -5,12 +5,17 @@ import KPICard from '@/components/dashboard/KPICard';
 import DashboardChart from '@/components/dashboard/DashboardChart';
 import PeriodSelector from '@/components/dashboard/PeriodSelector';
 import YieldRoiCard from '@/components/dashboard/YieldRoiCard';
-import { useAdminDashboard } from '@/hooks/useDashboard';
+import { useAdminDashboard, useLeaderDashboard } from '@/hooks/useDashboard';
 import { formatCurrency, formatNumber, formatSFT } from '@/utils/formatters';
+import useAuthStore from '@/stores/authStore';
 
 export default function AdminDashboardPage() {
+  const role = useAuthStore((s) => s.user?.role);
   const [period, setPeriod] = useState('month');
-  const { data, isLoading, error } = useAdminDashboard({ period });
+  const isLeader = role === 'Leader';
+  const { data, isLoading, error } = isLeader
+    ? useLeaderDashboard({ period })
+    : useAdminDashboard({ period });
   const d = data?.data;
 
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
@@ -19,7 +24,7 @@ export default function AdminDashboardPage() {
 
   return (
     <Box>
-      <PageHeader title="Admin Dashboard" action={<PeriodSelector value={period} onChange={setPeriod} />} />
+      <PageHeader title={isLeader ? 'Leader Dashboard' : 'Admin Dashboard'} action={<PeriodSelector value={period} onChange={setPeriod} />} />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Active Work Orders" value={formatNumber(d.activeWorkOrders)} /></Grid>
