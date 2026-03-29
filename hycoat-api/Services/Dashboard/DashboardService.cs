@@ -138,16 +138,14 @@ public class DashboardService : IDashboardService
 
         // Monthly quotations trend (last 6 months)
         var sixMonthsAgo = from.AddMonths(-5);
-        var monthlyQuotations = await _db.Quotations
+        var monthlyQuotations = (await _db.Quotations
             .Where(q => q.Date >= sixMonthsAgo && q.Date <= to)
             .GroupBy(q => new { q.Date.Year, q.Date.Month })
-            .Select(g => new ChartPointDto
-            {
-                Label = $"{g.Key.Year}-{g.Key.Month:D2}",
-                Value = g.Count()
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+            .OrderBy(c => c.Year).ThenBy(c => c.Month)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = $"{g.Year}-{g.Month:D2}", Value = g.Count })
+            .ToList();
 
         return new SalesDashboardDto
         {
@@ -187,16 +185,14 @@ public class DashboardService : IDashboardService
             .SumAsync(l => (decimal?)l.TotalSurfaceAreaSqft) ?? 0;
 
         // Weekly schedule load
-        var weeklyLoad = await _db.ProductionSchedules
+        var weeklyLoad = (await _db.ProductionSchedules
             .Where(s => s.Date >= from && s.Date <= to)
             .GroupBy(s => s.Date)
-            .Select(g => new ChartPointDto
-            {
-                Label = g.Key.ToString("ddd dd/MM"),
-                Value = g.Count()
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .OrderBy(c => c.Date)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = g.Date.ToString("ddd dd/MM"), Value = g.Count })
+            .ToList();
 
         var pwosByStatus = await _db.ProductionWorkOrders
             .GroupBy(p => p.Status)
@@ -236,16 +232,14 @@ public class DashboardService : IDashboardService
             .AverageAsync(l => (decimal?)l.ConveyorSpeedMtrPerMin) ?? 0;
 
         // Daily output trend
-        var dailyOutput = await _db.ProductionLogs
+        var dailyOutput = (await _db.ProductionLogs
             .Where(l => l.Date >= from && l.Date <= to)
             .GroupBy(l => l.Date)
-            .Select(g => new ChartPointDto
-            {
-                Label = g.Key.ToString("dd/MM"),
-                Value = g.Count()
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .OrderBy(c => c.Date)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = g.Date.ToString("dd/MM"), Value = g.Count })
+            .ToList();
 
         return new ProductionDashboardDto
         {
@@ -288,17 +282,15 @@ public class DashboardService : IDashboardService
         var overallPassRate = totalFinal > 0 ? Math.Round((decimal)passedFinal / totalFinal * 100, 1) : 0;
 
         // DFT trend (daily avg)
-        var dftTrend = await _db.InProcessDFTReadings
+        var dftTrend = (await _db.InProcessDFTReadings
             .Where(r => r.InProcessInspection.Date >= from && r.InProcessInspection.Date <= to
                      && r.AvgReading.HasValue)
             .GroupBy(r => r.InProcessInspection.Date)
-            .Select(g => new ChartPointDto
-            {
-                Label = g.Key.ToString("dd/MM"),
-                Value = g.Average(r => r.AvgReading!.Value)
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { Date = g.Key, Avg = g.Average(r => r.AvgReading!.Value) })
+            .OrderBy(c => c.Date)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = g.Date.ToString("dd/MM"), Value = g.Avg })
+            .ToList();
 
         // Inspection results breakdown
         var inspectionResults = await _db.FinalInspections
@@ -385,16 +377,15 @@ public class DashboardService : IDashboardService
 
         // Monthly purchase spend (last 6 months)
         var sixMonthsAgo = from.AddMonths(-5);
-        var monthlySpend = await _db.PurchaseOrders
+        var monthlySpend = (await _db.PurchaseOrders
             .Where(p => p.Date >= sixMonthsAgo && p.Date <= to && p.Status != "Cancelled")
-            .GroupBy(p => new { p.Date.Year, p.Date.Month })
-            .Select(g => new ChartPointDto
-            {
-                Label = $"{g.Key.Year}-{g.Key.Month:D2}",
-                Value = g.Sum(p => p.LineItems.Sum(l => l.Amount))
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .SelectMany(p => p.LineItems, (p, l) => new { p.Date, l.Amount })
+            .GroupBy(x => new { x.Date.Year, x.Date.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(x => x.Amount) })
+            .OrderBy(c => c.Year).ThenBy(c => c.Month)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = $"{g.Year}-{g.Month:D2}", Value = g.Total })
+            .ToList();
 
         return new PurchaseDashboardDto
         {
@@ -429,16 +420,14 @@ public class DashboardService : IDashboardService
 
         // Monthly revenue (last 6 months)
         var sixMonthsAgo = from.AddMonths(-5);
-        var monthlyRevenue = await _db.Invoices
+        var monthlyRevenue = (await _db.Invoices
             .Where(i => i.Date >= sixMonthsAgo && i.Date <= to && i.Status != "Cancelled")
             .GroupBy(i => new { i.Date.Year, i.Date.Month })
-            .Select(g => new ChartPointDto
-            {
-                Label = $"{g.Key.Year}-{g.Key.Month:D2}",
-                Value = g.Sum(i => i.GrandTotal)
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(i => i.GrandTotal) })
+            .OrderBy(c => c.Year).ThenBy(c => c.Month)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = $"{g.Year}-{g.Month:D2}", Value = g.Total })
+            .ToList();
 
         var invoicesByStatus = await _db.Invoices
             .GroupBy(i => i.Status)
@@ -478,29 +467,25 @@ public class DashboardService : IDashboardService
     private async Task<List<ChartPointDto>> GetMonthlyRevenueTrend(DateTime from, DateTime to)
     {
         var sixMonthsAgo = from.AddMonths(-5);
-        return await _db.Invoices
+        return (await _db.Invoices
             .Where(i => i.Date >= sixMonthsAgo && i.Date <= to && i.Status != "Cancelled")
             .GroupBy(i => new { i.Date.Year, i.Date.Month })
-            .Select(g => new ChartPointDto
-            {
-                Label = $"{g.Key.Year}-{g.Key.Month:D2}",
-                Value = g.Sum(i => i.GrandTotal)
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(i => i.GrandTotal) })
+            .OrderBy(c => c.Year).ThenBy(c => c.Month)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = $"{g.Year}-{g.Month:D2}", Value = g.Total })
+            .ToList();
     }
 
     private async Task<List<ChartPointDto>> GetDailyProductionTrend(DateTime from, DateTime to)
     {
-        return await _db.ProductionLogs
+        return (await _db.ProductionLogs
             .Where(l => l.Date >= from && l.Date <= to)
             .GroupBy(l => l.Date)
-            .Select(g => new ChartPointDto
-            {
-                Label = g.Key.ToString("dd/MM"),
-                Value = g.Count()
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .OrderBy(c => c.Date)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = g.Date.ToString("dd/MM"), Value = g.Count })
+            .ToList();
     }
 }

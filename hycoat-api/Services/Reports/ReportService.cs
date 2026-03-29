@@ -277,17 +277,15 @@ public class ReportService : IReportService
             .AverageAsync(r => (decimal?)r.AvgReading) ?? 0;
 
         // DFT trend (daily avg)
-        var dftTrend = await _db.InProcessDFTReadings
+        var dftTrend = (await _db.InProcessDFTReadings
             .Where(r => r.InProcessInspection.Date >= from && r.InProcessInspection.Date <= to
                      && r.AvgReading.HasValue)
             .GroupBy(r => r.InProcessInspection.Date)
-            .Select(g => new ChartPointDto
-            {
-                Label = g.Key.ToString("dd/MM"),
-                Value = g.Average(r => r.AvgReading!.Value)
-            })
-            .OrderBy(c => c.Label)
-            .ToListAsync();
+            .Select(g => new { Date = g.Key, Avg = g.Average(r => r.AvgReading!.Value) })
+            .OrderBy(c => c.Date)
+            .ToListAsync())
+            .Select(g => new ChartPointDto { Label = g.Date.ToString("dd/MM"), Value = g.Avg })
+            .ToList();
 
         // Failure reasons (group by OverallStatus for non-Approved)
         var failureReasons = finalInspections
