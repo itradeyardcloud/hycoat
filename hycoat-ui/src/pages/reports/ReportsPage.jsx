@@ -6,6 +6,7 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PeopleIcon from '@mui/icons-material/People';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import BoltIcon from '@mui/icons-material/Bolt';
 
 const REPORTS = [
   { title: 'Order Tracker', description: 'Track work orders through all stages', path: '/reports/order-tracker', icon: <AssignmentIcon sx={{ fontSize: 40 }} /> },
@@ -13,6 +14,7 @@ const REPORTS = [
   { title: 'Quality Summary', description: 'Inspection pass rates and DFT trends', path: '/reports/quality', icon: <VerifiedIcon sx={{ fontSize: 40 }} /> },
   { title: 'Customer History', description: 'Order history and revenue by customer', path: '/reports/customer', icon: <PeopleIcon sx={{ fontSize: 40 }} /> },
   { title: 'Dispatch Register', description: 'Delivery challan register with export', path: '/reports/dispatch', icon: <LocalShippingIcon sx={{ fontSize: 40 }} /> },
+  { title: 'Yield ROI', description: 'Daily yield, utility usage and production ROI', path: '/reports/yield', icon: <BoltIcon sx={{ fontSize: 40 }} /> },
 ];
 
 export default function ReportsPage() {

@@ -4,6 +4,7 @@ using HycoatApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HycoatApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260329035425_AddYieldReportsModule")]
+    partial class AddYieldReportsModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -725,7 +728,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-admin",
-                            ConcurrencyStamp = "ad3940de-faa8-47b1-9a0a-619f4cdadbc9",
+                            ConcurrencyStamp = "b4b46d4f-0b0f-48be-a52f-2c61b1d3e958",
                             Description = "Full system access",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
@@ -733,7 +736,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-leader",
-                            ConcurrencyStamp = "d534edb1-f9a3-4dad-8dfa-ed012ef6ca74",
+                            ConcurrencyStamp = "b2ef22eb-d7a1-4d8e-bd01-695f85b3791e",
                             Description = "Department leader access",
                             Name = "Leader",
                             NormalizedName = "LEADER"
@@ -741,7 +744,7 @@ namespace HycoatApi.Migrations
                         new
                         {
                             Id = "role-user",
-                            ConcurrencyStamp = "8382034b-a945-4938-badc-1cad45971b25",
+                            ConcurrencyStamp = "1cc3ac77-33d7-4747-9c52-c28a4532a326",
                             Description = "Standard user access",
                             Name = "User",
                             NormalizedName = "USER"
@@ -837,7 +840,7 @@ namespace HycoatApi.Migrations
                         {
                             Id = "user-admin",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1417712c-74cb-4bf3-bffc-b73fd85fd44e",
+                            ConcurrencyStamp = "e6e72047-a46d-4e3d-a4a6-f70489188fd8",
                             Department = "Admin",
                             Email = "admin@hycoat.com",
                             EmailConfirmed = true,
@@ -846,7 +849,7 @@ namespace HycoatApi.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@HYCOAT.COM",
                             NormalizedUserName = "ADMIN@HYCOAT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJH0FgM1qVWjwxqIhRz3aYtgCix0lhavpCRnh+fNjHp5B/7pphIG2aLRvB1JxRlqag==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPmKwK9k3mOV1YB8zPDXP4yvChyQa28zHI4hXoeDF1UajS3ySQ/c1Q41j63fjp2eKw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "STATIC-SECURITY-STAMP-FOR-SEED",
                             TwoFactorEnabled = false,

@@ -1,0 +1,114 @@
+name: CI - hycoat-ui and hycoat-api
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'hycoat-api/**'
+      - 'hycoat-ui/**'
+      - '.github/workflows/ci-hycoat.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'hycoat-api/**'
+      - 'hycoat-ui/**'
+      - '.github/workflows/ci-hycoat.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      ui: ${{ steps.filter.outputs.ui }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed areas
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api:
+              - 'hycoat-api/**'
+            ui:
+              - 'hycoat-ui/**'
+
+  api-ci:
+    name: API - Restore, Build, Test
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.api == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore hycoat-api/hycoat-api.csproj
+
+      - name: Build
+        run: dotnet build hycoat-api/hycoat-api.csproj -c Release --no-restore /p:UseAppHost=false
+
+      - name: Test (if test projects exist)
+        shell: bash
+        run: |
+          shopt -s nullglob
+          mapfile -t tests < <(find . -name '*Tests*.csproj' -o -name '*.Tests.csproj' -o -name '*.Test.csproj')
+          if [ ${#tests[@]} -eq 0 ]; then
+            echo "No test projects found. Skipping tests."
+            exit 0
+          fi
+
+          for test_project in "${tests[@]}"; do
+            echo "Running tests: ${test_project}"
+            dotnet test "${test_project}" -c Release --no-build --verbosity normal
+          done
+
+  ui-ci:
+    name: UI - Install, Lint, Build
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.ui == 'true' }}
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: hycoat-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: hycoat-ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        env:
+          VITE_API_URL: ${{ vars.HYCOAT_UI_VITE_API_URL || 'https://hycoat-dev-api.azurewebsites.net' }}
+          VITE_APP_NAME: HyCoat ERP
+          VITE_BYPASS_AUTH: 'false'
+        run: npm run build

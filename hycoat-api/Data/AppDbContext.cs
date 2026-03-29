@@ -59,6 +59,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
     public DbSet<PretreatmentTankReading> PretreatmentTankReadings => Set<PretreatmentTankReading>();
     public DbSet<ProductionLog> ProductionLogs => Set<ProductionLog>();
     public DbSet<ProductionPhoto> ProductionPhotos => Set<ProductionPhoto>();
+    public DbSet<YieldReport> YieldReports => Set<YieldReport>();
 
     // Quality
     public DbSet<InProcessInspection> InProcessInspections => Set<InProcessInspection>();

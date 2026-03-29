@@ -64,6 +64,7 @@ export const navigationItems = [
     children: [
       { label: 'Pretreatment Logs', path: '/production/pretreatment' },
       { label: 'Coating Logs', path: '/production/coating' },
+      { label: 'Yield ROI', path: '/production/yield' },
     ],
   },
   {

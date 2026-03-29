@@ -4,6 +4,7 @@ import PageHeader from '@/components/common/PageHeader';
 import KPICard from '@/components/dashboard/KPICard';
 import DashboardChart from '@/components/dashboard/DashboardChart';
 import PeriodSelector from '@/components/dashboard/PeriodSelector';
+import YieldRoiCard from '@/components/dashboard/YieldRoiCard';
 import { useProductionDashboard } from '@/hooks/useDashboard';
 import { formatNumber, formatSFT } from '@/utils/formatters';
 
@@ -25,6 +26,7 @@ export default function ProductionDashboardPage() {
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="SFT Coated" value={formatSFT(d.sftCoatedToday)} color="success.main" /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Active Logs" value={formatNumber(d.activeProductionLogs)} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Avg Conveyor Speed" value={`${d.avgConveyorSpeed.toFixed(1)}`} /></Grid>
+        <Grid size={{ xs: 12, md: 6 }}><YieldRoiCard targetPath="/production/yield" /></Grid>
       </Grid>
 
       <Grid container spacing={2}>

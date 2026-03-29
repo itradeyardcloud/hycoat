@@ -1,0 +1,6 @@
+publish/
+*.dll
+
+# Generated deployment archives
+hycoat-api/deploy.zip
+hycoat-ui-win-deploy.zip

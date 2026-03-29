@@ -22,6 +22,7 @@ using HycoatApi.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
@@ -63,6 +64,7 @@ builder.Services.AddSwaggerGen(options =>
 // Database
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
            .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
 
 // Identity
@@ -82,11 +84,17 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
 // CORS
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+if (corsOrigins is null || corsOrigins.Length == 0)
+{
+    corsOrigins = new[] { "http://localhost:5173", "http://localhost:3000" };
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -190,6 +198,7 @@ builder.Services.AddScoped<PurchaseOrderPdfService>();
 // Dashboard & Reports Services
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IYieldReportService, YieldReportService>();
 builder.Services.AddScoped<ExcelExportService>();
 
 // FluentValidation
@@ -207,7 +216,8 @@ if (bypassAuth)
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+var enableSwagger = builder.Configuration.GetValue<bool>("Swagger:Enabled") || app.Environment.IsDevelopment();
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI();

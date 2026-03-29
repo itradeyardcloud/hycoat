@@ -93,6 +93,7 @@ const ProductionReportPage = lazy(() => import('./pages/reports/ProductionReport
 const QualityReportPage = lazy(() => import('./pages/reports/QualityReportPage'));
 const CustomerHistoryPage = lazy(() => import('./pages/reports/CustomerHistoryPage'));
 const DispatchRegisterPage = lazy(() => import('./pages/reports/DispatchRegisterPage'));
+const YieldReportPage = lazy(() => import('./pages/reports/YieldReportPage'));
 
 function App() {
   useEffect(() => {
@@ -178,6 +179,7 @@ function App() {
               <Route path="/production/coating" element={<CoatingLogsPage />} />
               <Route path="/production/coating/new" element={<CoatingLogFormPage />} />
               <Route path="/production/coating/:id" element={<CoatingLogFormPage />} />
+              <Route path="/production/yield" element={<YieldReportPage />} />
             </Route>
 
             {/* Quality */}
@@ -231,6 +233,7 @@ function App() {
               <Route path="/reports/quality" element={<QualityReportPage />} />
               <Route path="/reports/customer" element={<CustomerHistoryPage />} />
               <Route path="/reports/dispatch" element={<DispatchRegisterPage />} />
+              <Route path="/reports/yield" element={<YieldReportPage />} />
             </Route>
 
             {/* Admin — Admin only */}

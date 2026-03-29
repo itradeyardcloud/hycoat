@@ -1,0 +1,65 @@
+name: Deploy hycoat-ui to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'hycoat-ui/**'
+      - '.github/workflows/deploy-hycoat-ui-azure.yml'
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Optional VITE_API_URL override for this deployment'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  AZURE_WEBAPP_NAME: hycoat-dev-ui-win
+  WORKING_DIRECTORY: hycoat-ui
+  BUILD_OUTPUT_DIRECTORY: dist
+
+concurrency:
+  group: cd-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: hycoat-dev-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: hycoat-ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Build app
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        env:
+          VITE_API_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_url || vars.HYCOAT_UI_VITE_API_URL || 'https://hycoat-dev-api.azurewebsites.net' }}
+          VITE_APP_NAME: HyCoat ERP
+          VITE_BYPASS_AUTH: 'false'
+        run: npm run build
+
+      - name: Add IIS rewrite config for SPA
+        run: cp ${{ env.WORKING_DIRECTORY }}/web.config ${{ env.WORKING_DIRECTORY }}/${{ env.BUILD_OUTPUT_DIRECTORY }}/web.config
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_HYCOAT_DEV_UI }}
+          package: ${{ env.WORKING_DIRECTORY }}/${{ env.BUILD_OUTPUT_DIRECTORY }}

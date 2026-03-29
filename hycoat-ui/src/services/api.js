@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:5001';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'https://localhost:5001' : 'https://hycoat-dev-api.azurewebsites.net');
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,

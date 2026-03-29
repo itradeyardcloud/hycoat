@@ -1,6 +1,8 @@
 import * as signalR from '@microsoft/signalr';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:5001';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'https://localhost:5001' : 'https://hycoat-dev-api.azurewebsites.net');
 let connection;
 
 export async function startNotificationConnection(onReceiveNotification) {

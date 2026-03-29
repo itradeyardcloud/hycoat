@@ -4,6 +4,7 @@ import PageHeader from '@/components/common/PageHeader';
 import KPICard from '@/components/dashboard/KPICard';
 import DashboardChart from '@/components/dashboard/DashboardChart';
 import PeriodSelector from '@/components/dashboard/PeriodSelector';
+import YieldRoiCard from '@/components/dashboard/YieldRoiCard';
 import { useAdminDashboard } from '@/hooks/useDashboard';
 import { formatCurrency, formatNumber, formatSFT } from '@/utils/formatters';
 
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Pending Inquiries" value={formatNumber(d.pendingInquiries)} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Monthly Revenue" value={formatCurrency(d.monthlyRevenue)} color="success.main" /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Monthly Production" value={formatSFT(d.monthlyProductionSFT)} /></Grid>
+        <Grid size={{ xs: 12, md: 6 }}><YieldRoiCard targetPath="/reports/yield" /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Pending Dispatches" value={formatNumber(d.pendingDispatches)} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Quality Pass Rate" value={`${d.qualityPassRate.toFixed(1)}%`} color={d.qualityPassRate >= 90 ? 'success.main' : 'warning.main'} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><KPICard title="Low Stock Alerts" value={formatNumber(d.lowStockAlerts)} color={d.lowStockAlerts > 0 ? 'error.main' : 'success.main'} /></Grid>
