@@ -5,9 +5,18 @@ import {
   loginRequest,
   msalInstance,
 } from '@/config/msalConfig';
+import {
+  getPersistentItem,
+  isEmbeddedBrowserContext,
+  isPersistentStorageAvailable,
+  removePersistentItem,
+  setPersistentItem,
+} from '@/utils/browserStorage';
 
 const loginAttemptedKey = 'hycoat.msal.loginAttempted';
 let initializeInFlight = false;
+const blockedStorageMessage =
+  'Microsoft sign-in requires browser storage. Open the app in a standard browser tab and allow site storage, then try again.';
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -23,7 +32,12 @@ const useAuthStore = create((set) => ({
     }
 
     set({ authError: null });
-    sessionStorage.setItem(loginAttemptedKey, '1');
+    const storageReady = setPersistentItem(loginAttemptedKey, '1');
+    if (!storageReady && isEmbeddedBrowserContext()) {
+      set({ authError: blockedStorageMessage, isInitializing: false });
+      return;
+    }
+
     await msalInstance.loginRedirect(loginRequest);
   },
 
@@ -86,7 +100,7 @@ const useAuthStore = create((set) => ({
           return;
         }
 
-        const loginAttempted = sessionStorage.getItem(loginAttemptedKey) === '1';
+        const loginAttempted = getPersistentItem(loginAttemptedKey) === '1';
         if (loginAttempted) {
           set({
             user: null,
@@ -98,13 +112,24 @@ const useAuthStore = create((set) => ({
           return;
         }
 
-        sessionStorage.setItem(loginAttemptedKey, '1');
+        const storageReady = setPersistentItem(loginAttemptedKey, '1');
+        if (!storageReady && (!isPersistentStorageAvailable() || isEmbeddedBrowserContext())) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isInitializing: false,
+            authError: blockedStorageMessage,
+          });
+          initializeInFlight = false;
+          return;
+        }
+
         await msalInstance.loginRedirect(loginRequest);
         initializeInFlight = false;
         return;
       }
 
-      sessionStorage.removeItem(loginAttemptedKey);
+      removePersistentItem(loginAttemptedKey);
 
       const user = mapMsalAccountToUser(account);
       set({ user, isAuthenticated: true, isInitializing: false, authError: null });
