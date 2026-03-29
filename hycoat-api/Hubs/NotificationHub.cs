@@ -9,7 +9,9 @@ public class NotificationHub : Hub
 {
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.UserIdentifier
+        var userId = Context.User?.FindFirstValue("http://schemas.microsoft.com/identity/claims/objectidentifier")
+            ?? Context.User?.FindFirstValue("oid")
+            ?? Context.UserIdentifier
             ?? Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (!string.IsNullOrWhiteSpace(userId))

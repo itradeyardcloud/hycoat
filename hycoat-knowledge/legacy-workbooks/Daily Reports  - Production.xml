@@ -8306,7 +8306,7 @@
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">10050</Data></Cell>
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">14</Data></Cell>
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">10036</Data></Cell>
-    <Cell ss:StyleID="s43" ss:Formula="=RC[-1]/RC[-3]"><Data ss:Type="Number">0.99860696517412939</Data></Cell>
+    <Cell ss:StyleID="s43" ss:Formula="=RC[-1]/RC[-3]"><Data ss:Type="Number">0.99860696517312939</Data></Cell>
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">2160</Data></Cell>
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">11</Data></Cell>
     <Cell ss:StyleID="s42" ss:Formula="=SUM(R[-11]C:R[-2]C)"><Data ss:Type="Number">2149</Data></Cell>

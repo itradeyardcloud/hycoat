@@ -1,14 +1,19 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { Box, Typography, Button } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import PropTypes from 'prop-types';
 import useAuthStore from '../../stores/authStore';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, isInitializing, user, authError, startLogin } = useAuthStore();
+
+  if (isInitializing) {
+    return <LoadingSpinner />;
+  }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <AuthRequired message={authError} onSignIn={startLogin} />;
   }
 
   // Role check
@@ -59,3 +64,36 @@ function AccessDenied() {
     </Box>
   );
 }
+
+function AuthRequired({ message, onSignIn }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '60vh',
+        gap: 2,
+        p: 3,
+        textAlign: 'center',
+      }}
+    >
+      <LockIcon sx={{ fontSize: 64, color: 'text.secondary' }} />
+      <Typography variant="h5" fontWeight={600}>
+        Sign In Required
+      </Typography>
+      <Typography color="text.secondary">
+        {message || 'Please sign in with your Microsoft account to continue.'}
+      </Typography>
+      <Button variant="contained" onClick={onSignIn}>
+        Sign In with Microsoft
+      </Button>
+    </Box>
+  );
+}
+
+AuthRequired.propTypes = {
+  message: PropTypes.string,
+  onSignIn: PropTypes.func.isRequired,
+};

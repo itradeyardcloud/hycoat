@@ -76,7 +76,7 @@ const navConfigs = {
 const moreMenuItems = [
   { label: 'Masters', icon: <AdminPanelSettingsIcon fontSize="small" />, path: '/masters/customers', roles: ['Admin', 'Leader'] },
   { label: 'Reports', icon: <BarChartIcon fontSize="small" />, path: '/reports', roles: ['Admin', 'Leader'] },
-  { label: 'Admin', icon: <AdminPanelSettingsIcon fontSize="small" />, path: '/admin/users', roles: ['Admin'] },
+  { label: 'Audit Logs', icon: <AdminPanelSettingsIcon fontSize="small" />, path: '/admin/audit-logs', roles: ['Admin'] },
 ];
 
 export default function BottomNav() {

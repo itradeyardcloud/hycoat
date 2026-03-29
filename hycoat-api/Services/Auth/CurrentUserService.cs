@@ -5,6 +5,7 @@ namespace HycoatApi.Services.Auth;
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private const string OidClaim = "http://schemas.microsoft.com/identity/claims/objectidentifier";
 
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
@@ -12,8 +13,11 @@ public class CurrentUserService : ICurrentUserService
     }
 
     public string? UserId =>
-        _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _httpContextAccessor.HttpContext?.User.FindFirstValue(OidClaim)
+        ?? _httpContextAccessor.HttpContext?.User.FindFirstValue("oid")
+        ?? _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     public string? UserName =>
-        _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+        _httpContextAccessor.HttpContext?.User.FindFirstValue("name")
+        ?? _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
 }

@@ -1,5 +1,12 @@
 publish/
+.azurecli/
+.azurecli-fresh/
 *.dll
+
+# Local planning/scratch artifacts
+/plan.md
+/image.png
+/scripts/setup-admin-role.ps1
 
 # Generated deployment archives
 hycoat-api/deploy.zip

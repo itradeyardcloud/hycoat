@@ -104,7 +104,6 @@ export const navigationItems = [
     icon: AdminPanelSettingsIcon,
     departments: ['Admin'],
     children: [
-      { label: 'User Management', path: '/admin/users' },
       { label: 'Audit Logs', path: '/admin/audit-logs' },
     ],
   },

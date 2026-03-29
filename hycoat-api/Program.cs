@@ -1,9 +1,7 @@
-using System.Text;
 using HycoatApi.Data;
 using HycoatApi.Middleware;
 using HycoatApi.Models.Identity;
 using FluentValidation;
-using HycoatApi.Services;
 using HycoatApi.Services.Masters;
 using HycoatApi.Services.Sales;
 using HycoatApi.Services.MaterialInward;
@@ -23,8 +21,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi;
 using Serilog;
 
@@ -67,18 +65,10 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
            .AddInterceptors(sp.GetRequiredService<AuditInterceptor>()));
 
-// Identity
-builder.Services.AddIdentity<AppUser, AppRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<AppDbContext>()
-.AddDefaultTokenProviders();
+// Identity — keep EF stores for FK references and UserManager usage, but no auth
+builder.Services.AddIdentityCore<AppUser>()
+    .AddRoles<AppRole>()
+    .AddEntityFrameworkStores<AppDbContext>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
@@ -87,7 +77,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 if (corsOrigins is null || corsOrigins.Length == 0)
 {
-    corsOrigins = new[] { "http://localhost:5173", "http://localhost:3000" };
+    corsOrigins = new[] { "http://localhost:5173", "http://localhost:5174", "http://localhost:3000" };
 }
 
 builder.Services.AddCors(options =>
@@ -101,48 +91,38 @@ builder.Services.AddCors(options =>
     });
 });
 
-// JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)),
-        ClockSkew = TimeSpan.Zero
-    };
+// Azure AD Authentication
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd")
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
 
-    options.Events = new JwtBearerEvents
+builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    options.Events ??= new JwtBearerEvents();
+    var originalOnMessageReceived = options.Events.OnMessageReceived;
+
+    options.Events.OnMessageReceived = async context =>
     {
-        OnMessageReceived = context =>
+        if (originalOnMessageReceived != null)
         {
-            var accessToken = context.Request.Query["access_token"];
-            var path = context.HttpContext.Request.Path;
+            await originalOnMessageReceived(context);
+        }
 
-            if (!string.IsNullOrWhiteSpace(accessToken) &&
-                path.StartsWithSegments("/hubs/notifications"))
-            {
-                context.Token = accessToken;
-            }
+        if (!string.IsNullOrEmpty(context.Token))
+        {
+            return;
+        }
 
-            return Task.CompletedTask;
+        var accessToken = context.Request.Query["access_token"];
+        var path = context.HttpContext.Request.Path;
+        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+        {
+            context.Token = accessToken;
         }
     };
 });
 
 // Services
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -234,6 +214,11 @@ if (bypassAuth)
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (!bypassAuth)
+{
+    app.UseMiddleware<AzureAdUserProvisioningMiddleware>();
+}
 
 app.UseStaticFiles();
 

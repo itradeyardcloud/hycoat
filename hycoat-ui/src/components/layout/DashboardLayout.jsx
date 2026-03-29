@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -33,7 +33,6 @@ const DRAWER_COLLAPSED = 64;
 export default function DashboardLayout() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const navigate = useNavigate();
 
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -51,7 +50,6 @@ export default function DashboardLayout() {
   const handleLogout = () => {
     setAvatarAnchor(null);
     logout();
-    navigate('/login');
   };
 
   const userInitials = user?.fullName

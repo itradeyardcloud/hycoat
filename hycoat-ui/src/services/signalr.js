@@ -1,20 +1,33 @@
 import * as signalR from '@microsoft/signalr';
+import { acquireAccessToken, isBypassAuthEnabled } from '@/config/msalConfig';
 
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim();
+const useDevProxy =
+  import.meta.env.DEV &&
+  (!configuredApiUrl || /localhost|127\.0\.0\.1/i.test(configuredApiUrl));
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'https://localhost:5001' : 'https://hycoat-dev-api.azurewebsites.net');
+  useDevProxy
+    ? ''
+    : configuredApiUrl ||
+      (import.meta.env.DEV ? 'https://localhost:5001' : 'https://hycoat-dev-api.azurewebsites.net');
 let connection;
 
 export async function startNotificationConnection(onReceiveNotification) {
-  const token = localStorage.getItem('accessToken');
+  if (isBypassAuthEnabled) {
+    return null;
+  }
+
+  const token = await acquireAccessToken();
   if (!token) {
     return null;
   }
 
   if (!connection) {
+    const hubUrl = useDevProxy ? '/hubs/notifications' : `${API_BASE_URL}/hubs/notifications`;
+
     connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE_URL}/hubs/notifications`, {
-        accessTokenFactory: () => localStorage.getItem('accessToken') || '',
+      .withUrl(hubUrl, {
+        accessTokenFactory: async () => (await acquireAccessToken()) || '',
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)

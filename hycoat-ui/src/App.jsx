@@ -1,16 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import DashboardLayout from './components/layout/DashboardLayout';
-import AuthLayout from './components/layout/AuthLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import GuestOnlyRoute from './components/common/GuestOnlyRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import useAuthStore from './stores/authStore';
 
 // Lazy-loaded pages
-const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
-const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 
 // Masters
@@ -24,7 +20,6 @@ const VendorsPage = lazy(() => import('./pages/masters/VendorsPage'));
 const VendorFormPage = lazy(() => import('./pages/masters/VendorFormPage'));
 const ProcessTypesPage = lazy(() => import('./pages/masters/ProcessTypesPage'));
 const ProductionUnitsPage = lazy(() => import('./pages/masters/ProductionUnitsPage'));
-const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const AuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'));
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 
@@ -96,21 +91,25 @@ const DispatchRegisterPage = lazy(() => import('./pages/reports/DispatchRegister
 const YieldReportPage = lazy(() => import('./pages/reports/YieldReportPage'));
 
 function App() {
+  const didInitAuthRef = useRef(false);
+  const isInitializing = useAuthStore((s) => s.isInitializing);
+
   useEffect(() => {
+    if (didInitAuthRef.current) {
+      return;
+    }
+
+    didInitAuthRef.current = true;
     useAuthStore.getState().initialize();
   }, []);
+
+  if (isInitializing) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Auth Routes */}
-        <Route element={<GuestOnlyRoute />}>
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          </Route>
-        </Route>
-
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
@@ -238,7 +237,6 @@ function App() {
 
             {/* Admin — Admin only */}
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
-              <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/audit-logs" element={<AuditLogPage />} />
             </Route>
           </Route>

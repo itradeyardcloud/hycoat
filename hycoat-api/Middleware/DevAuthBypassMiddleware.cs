@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace HycoatApi.Middleware;
 
@@ -22,10 +21,11 @@ public class DevAuthBypassMiddleware
     {
         var identity = new ClaimsIdentity(new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "dev-bypass-user"),
-            new Claim(ClaimTypes.Email, "admin@hycoat.dev"),
-            new Claim(ClaimTypes.Name, "Dev Admin"),
-            new Claim(ClaimTypes.Role, "Admin"),
+            // Use Azure AD-style claims so ClaimsHelper works uniformly
+            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", "dev-bypass-user"),
+            new Claim("preferred_username", "admin@hycoat.dev"),
+            new Claim("name", "Dev Admin"),
+            new Claim("roles", "Admin"),
             new Claim("department", "Development"),
         }, "DevBypass");
 
