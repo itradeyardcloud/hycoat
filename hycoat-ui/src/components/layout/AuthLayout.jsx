@@ -21,8 +21,14 @@ export default function AuthLayout() {
         }}
       >
         <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Typography variant="h4" fontWeight={700} color="primary">
-            HyCoat
+          <Box
+            component="img"
+            src="/branding/logo.png"
+            alt="HYCOAT"
+            sx={{ width: 110, height: 110, mx: 'auto', mb: 1.5, display: 'block' }}
+          />
+          <Typography variant="h5" fontWeight={700} sx={{ letterSpacing: 0.4, mb: 0.5 }}>
+            HYCOAT SYSTEMS
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Internal Operations Management

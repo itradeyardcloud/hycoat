@@ -45,19 +45,32 @@ export default function Sidebar({ collapsed = false, onItemClick }) {
     <Box sx={{ py: 1, overflow: 'auto', height: '100%' }}>
       {!isCollapsed && (
         <Box sx={{ px: 2, py: 1.5, mb: 1 }}>
-          <Typography variant="h6" fontWeight={700} color="primary">
-            HyCoat
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            ERP System
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Box
+              component="img"
+              src="/branding/logo.png"
+              alt="HYCOAT"
+              sx={{ width: 32, height: 32, display: 'block' }}
+            />
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle2" sx={{ lineHeight: 1.1, fontWeight: 700, letterSpacing: 0.3 }}>
+                HYCOAT SYSTEMS
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.1 }}>
+                Shielding Surfaces
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       )}
       {isCollapsed && (
         <Box sx={{ textAlign: 'center', py: 1.5, mb: 1 }}>
-          <Typography variant="h6" fontWeight={700} color="primary">
-            H
-          </Typography>
+          <Box
+            component="img"
+            src="/branding/logo.png"
+            alt="HYCOAT"
+            sx={{ width: 32, height: 32, mx: 'auto', display: 'block' }}
+          />
         </Box>
       )}
       <Divider sx={{ mb: 1 }} />

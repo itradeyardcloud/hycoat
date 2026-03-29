@@ -1,0 +1,32 @@
+<svg width="880" height="190" viewBox="0 0 880 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="880" height="190" rx="20" fill="#F5F7FA"/>
+
+  <g transform="translate(28 18) scale(0.60)">
+    <defs>
+      <linearGradient id="hycoatBase" x1="38" y1="44" x2="226" y2="216" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#00B7FF" />
+        <stop offset="0.32" stop-color="#6A5BFF" />
+        <stop offset="0.57" stop-color="#F22FAF" />
+        <stop offset="0.8" stop-color="#FF8F00" />
+        <stop offset="1" stop-color="#FFD300" />
+      </linearGradient>
+      <radialGradient id="hycoatGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(138 114) rotate(108) scale(136)">
+        <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.44" />
+        <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="hycoatRim" x1="45" y1="52" x2="208" y2="214" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.84" />
+        <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.24" />
+        <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.68" />
+      </linearGradient>
+    </defs>
+
+    <path d="M128.2 20.8c28.3 10.4 63.9 26.7 93.8 48.2 2.3 1.6 3.7 4.2 3.8 7l1 56.1c.9 46.2-17.3 89.6-50.6 121.7-13.8 13.2-31.8 13.2-45.6-.1-33.2-32-51.4-75.4-50.5-121.6l1-56.2c.1-2.8 1.5-5.3 3.8-7 29.8-21.5 65.5-37.9 93.3-48.1z" fill="url(#hycoatBase)"/>
+    <path d="M128.2 20.8c28.3 10.4 63.9 26.7 93.8 48.2 2.3 1.6 3.7 4.2 3.8 7l1 56.1c.9 46.2-17.3 89.6-50.6 121.7-13.8 13.2-31.8 13.2-45.6-.1-33.2-32-51.4-75.4-50.5-121.6l1-56.2c.1-2.8 1.5-5.3 3.8-7 29.8-21.5 65.5-37.9 93.3-48.1z" fill="url(#hycoatGlow)"/>
+    <path d="M128.1 34.2c24.6 9.3 55.5 23.8 81.4 42.8l.8 54.9c.8 41.5-15.4 80.2-45.1 108.8-10.1 9.7-23.2 9.7-33.4 0-29.6-28.5-45.7-67.3-44.9-108.8l.8-55c25.8-18.9 56.7-33.4 80.4-42.7z" stroke="url(#hycoatRim)" stroke-width="5.2" stroke-linejoin="round"/>
+  </g>
+
+  <text x="214" y="86" fill="#F0A11E" font-size="56" font-weight="700" font-family="Segoe UI, Arial, sans-serif">HYCOAT</text>
+  <text x="460" y="86" fill="#253046" font-size="56" font-weight="700" font-family="Segoe UI, Arial, sans-serif">SYSTEMS</text>
+  <text x="214" y="132" fill="#6C7A90" font-size="30" font-weight="500" font-style="italic" font-family="Segoe UI, Arial, sans-serif">Shielding Surfaces. Extending Life.</text>
+</svg>

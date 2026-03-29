@@ -88,9 +88,21 @@ export default function DashboardLayout() {
             </IconButton>
           )}
 
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1, fontWeight: 600 }}>
-            HyCoat ERP
-          </Typography>
+          <Box sx={{ flexGrow: 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+            <Box
+              component="img"
+              src="/branding/logo.png"
+              alt="HYCOAT"
+              sx={{ width: 30, height: 30, display: 'block' }}
+            />
+            <Typography
+              variant="subtitle1"
+              noWrap
+              sx={{ fontWeight: 700, letterSpacing: 0.4, color: 'text.primary' }}
+            >
+              HYCOAT SYSTEMS
+            </Typography>
+          </Box>
 
           {/* Notification bell */}
           <NotificationBell />
