@@ -15,6 +15,7 @@ on:
       - 'hycoat-api/**'
       - 'hycoat-ui/**'
       - '.github/workflows/ci-hycoat.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
