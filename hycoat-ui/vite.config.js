@@ -14,9 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
       manifest: {
-        name: 'HyCoat ERP',
-        short_name: 'HyCoat',
-        description: 'HyCoat Systems - Internal Operations Management',
+        name: 'HYCOAT Systems',
+        short_name: 'HYCOAT',
+        description: 'HYCOAT Systems - Internal Operations Management',
         theme_color: '#1565c0',
         background_color: '#ffffff',
         display: 'standalone',
