@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 
 export default function PageHeader({ title, subtitle, action }) {
   return (
@@ -26,3 +27,9 @@ export default function PageHeader({ title, subtitle, action }) {
     </Box>
   );
 }
+
+PageHeader.propTypes = {
+  title: PropTypes.node.isRequired,
+  subtitle: PropTypes.node,
+  action: PropTypes.node,
+};

@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { Box, Typography, Button } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
+import PropTypes from 'prop-types';
 import useAuthStore from '../../stores/authStore';
 
 export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
@@ -25,6 +26,11 @@ export default function ProtectedRoute({ allowedRoles, allowedDepartments }) {
 
   return <Outlet />;
 }
+
+ProtectedRoute.propTypes = {
+  allowedRoles: PropTypes.arrayOf(PropTypes.string),
+  allowedDepartments: PropTypes.arrayOf(PropTypes.string),
+};
 
 function AccessDenied() {
   return (
