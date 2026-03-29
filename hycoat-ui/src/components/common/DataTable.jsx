@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Table,
   TableBody,
@@ -194,3 +195,31 @@ function MobileSkeleton() {
     </Stack>
   );
 }
+
+const columnShape = PropTypes.shape({
+  field: PropTypes.string.isRequired,
+  headerName: PropTypes.node,
+  sortable: PropTypes.bool,
+  renderCell: PropTypes.func,
+});
+
+DataTable.propTypes = {
+  columns: PropTypes.arrayOf(columnShape).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  loading: PropTypes.bool,
+  onRowClick: PropTypes.func,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
+  totalCount: PropTypes.number,
+  onPageChange: PropTypes.func,
+  onRowsPerPageChange: PropTypes.func,
+};
+
+MobileCardContent.propTypes = {
+  columns: PropTypes.arrayOf(columnShape).isRequired,
+  row: PropTypes.object.isRequired,
+};
+
+DesktopSkeleton.propTypes = {
+  columns: PropTypes.arrayOf(columnShape).isRequired,
+};

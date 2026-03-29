@@ -6,6 +6,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 
 export default function ConfirmDialog({
   open,
@@ -31,3 +32,13 @@ export default function ConfirmDialog({
     </Dialog>
   );
 }
+
+ConfirmDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  title: PropTypes.node.isRequired,
+  message: PropTypes.node.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  confirmText: PropTypes.string,
+  confirmColor: PropTypes.string,
+};
