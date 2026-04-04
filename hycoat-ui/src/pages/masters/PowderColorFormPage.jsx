@@ -37,7 +37,8 @@ export default function PowderColorFormPage() {
   const { data: existing, isLoading: loadingColor } = usePowderColor(id);
   const createMutation = useCreatePowderColor();
   const updateMutation = useUpdatePowderColor();
-  const { data: vendors = [] } = useVendorLookup();
+  const { data: vendorsResponse } = useVendorLookup();
+  const vendors = vendorsResponse?.data ?? [];
 
   const {
     control,
