@@ -35,6 +35,7 @@ export const navigationItems = [
   {
     label: 'Sales',
     icon: ShoppingCartIcon,
+    hidden: true,
     departments: ['Sales'],
     groups: ACCESS_GROUPS.SALES,
     children: [
@@ -78,6 +79,7 @@ export const navigationItems = [
   {
     label: 'Quality',
     icon: VerifiedIcon,
+    hidden: true,
     departments: ['QA'],
     groups: ACCESS_GROUPS.QUALITY,
     children: [
@@ -89,6 +91,7 @@ export const navigationItems = [
   {
     label: 'Dispatch',
     icon: LocalShippingIcon,
+    hidden: true,
     departments: ['SCM'],
     groups: ACCESS_GROUPS.SCM,
     children: [
@@ -100,6 +103,7 @@ export const navigationItems = [
   {
     label: 'Purchase',
     icon: StoreIcon,
+    hidden: true,
     departments: ['Purchase'],
     groups: ACCESS_GROUPS.PURCHASE,
     children: [
@@ -119,6 +123,7 @@ export const navigationItems = [
   {
     label: 'Admin',
     icon: AdminPanelSettingsIcon,
+    hidden: true,
     departments: ['Admin'],
     groups: ACCESS_GROUPS.ADMIN,
     children: [
@@ -138,12 +143,11 @@ export function getFilteredNavItems(user) {
   if (!user) return [];
   const { role, department, groups = [] } = user;
 
-  if (role === 'Admin') {
-    return navigationItems;
-  }
-
   return navigationItems.filter((item) => {
+    if (item.hidden) return false;
     if (item.departments === '*') return true;
+
+    if (role === 'Admin') return true;
 
     const departmentMatch = Array.isArray(item.departments) && item.departments.includes(department);
     const roleMatch = Array.isArray(item.departments) && item.departments.includes(role);

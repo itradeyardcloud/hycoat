@@ -25,15 +25,15 @@ import useAuthStore from '../../stores/authStore';
 const navConfigs = {
   'Admin': [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { label: 'Orders', icon: <ShoppingCartIcon />, path: '/sales/work-orders' },
+    { label: 'Inward', icon: <InventoryIcon />, path: '/material-inward/inwards' },
+    { label: 'Planning', icon: <EventNoteIcon />, path: '/ppc/work-orders' },
     { label: 'Production', icon: <PrecisionManufacturingIcon />, path: '/production/pretreatment' },
-    { label: 'Quality', icon: <VerifiedIcon />, path: '/quality/in-process' },
   ],
   'Leader': [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { label: 'Orders', icon: <ShoppingCartIcon />, path: '/sales/work-orders' },
+    { label: 'Inward', icon: <InventoryIcon />, path: '/material-inward/inwards' },
+    { label: 'Planning', icon: <EventNoteIcon />, path: '/ppc/work-orders' },
     { label: 'Production', icon: <PrecisionManufacturingIcon />, path: '/production/pretreatment' },
-    { label: 'Quality', icon: <VerifiedIcon />, path: '/quality/in-process' },
   ],
   'Sales': [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
@@ -76,7 +76,6 @@ const navConfigs = {
 const moreMenuItems = [
   { label: 'Masters', icon: <AdminPanelSettingsIcon fontSize="small" />, path: '/masters/customers', roles: ['Admin', 'Leader'] },
   { label: 'Reports', icon: <BarChartIcon fontSize="small" />, path: '/reports', roles: ['Admin', 'Leader'] },
-  { label: 'Audit Logs', icon: <AdminPanelSettingsIcon fontSize="small" />, path: '/admin/audit-logs', roles: ['Admin'] },
 ];
 
 export default function BottomNav() {

@@ -1,13 +1,10 @@
 name: Deploy hycoat-ui to Azure App Service
 
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'hycoat-ui/**'
-      - '.github/workflows/deploy-hycoat-ui-azure.yml'
+  workflow_run:
+    workflows: ["CI - hycoat-ui and hycoat-api"]
+    types: [completed]
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       api_url:
@@ -22,6 +19,7 @@ env:
   AZURE_WEBAPP_NAME: hycoat-dev-ui
   WORKING_DIRECTORY: hycoat-ui
   BUILD_OUTPUT_DIRECTORY: dist
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
   group: cd-ui-${{ github.ref }}
@@ -29,8 +27,10 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    name: Build & Deploy to Azure
     runs-on: ubuntu-latest
     environment: hycoat-dev-ui
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: hycoat-ui/package-lock.json
 
