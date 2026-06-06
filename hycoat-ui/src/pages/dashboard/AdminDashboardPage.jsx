@@ -13,9 +13,9 @@ export default function AdminDashboardPage() {
   const role = useAuthStore((s) => s.user?.role);
   const [period, setPeriod] = useState('month');
   const isLeader = role === 'Leader';
-  const { data, isLoading, error } = isLeader
-    ? useLeaderDashboard({ period })
-    : useAdminDashboard({ period });
+  const leaderResult = useLeaderDashboard({ period });
+  const adminResult = useAdminDashboard({ period });
+  const { data, isLoading, error } = isLeader ? leaderResult : adminResult;
   const d = data?.data;
 
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
