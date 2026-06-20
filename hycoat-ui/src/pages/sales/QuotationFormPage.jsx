@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +22,7 @@ import {
 import { Add, Delete } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useQuotation, useCreateQuotation, useUpdateQuotation } from '@/hooks/useQuotations';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import { useProcessTypes } from '@/hooks/useProcessTypes';
@@ -194,8 +194,10 @@ export default function QuotationFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -220,8 +222,10 @@ export default function QuotationFormPage() {
               name="inquiryId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/sales/inquiries/new"
+                  addNewLabel="Add New Inquiry"
                   options={inquiryOptions}
                   getOptionLabel={(o) => o.name}
                   value={inquiryOptions.find((inq) => inq.id === field.value) ?? null}
@@ -285,8 +289,10 @@ export default function QuotationFormPage() {
                       name={`lineItems.${index}.processTypeId`}
                       control={control}
                       render={({ field: f }) => (
-                        <Autocomplete
+                        <LookupAutocomplete
                           size="small"
+                          addNewPath="/masters/process-types"
+                          addNewLabel="Manage Process Types"
                           options={processTypeOptions}
                           getOptionLabel={(o) => o.name}
                           value={processTypeOptions.find((pt) => pt.id === f.value) ?? null}

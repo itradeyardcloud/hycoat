@@ -9,11 +9,11 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Chip,
 } from '@mui/material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useWorkOrder, useCreateWorkOrder, useUpdateWorkOrder } from '@/hooks/useWorkOrders';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import { usePILookup } from '@/hooks/useProformaInvoices';
@@ -176,8 +176,10 @@ export default function WorkOrderFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -202,8 +204,10 @@ export default function WorkOrderFormPage() {
               name="proformaInvoiceId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/sales/proforma-invoices/new"
+                  addNewLabel="Add New PI"
                   options={piOptions}
                   getOptionLabel={(o) => o.name}
                   value={piOptions.find((pi) => pi.id === field.value) ?? null}
@@ -228,8 +232,10 @@ export default function WorkOrderFormPage() {
               name="processTypeId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/process-types"
+                  addNewLabel="Manage Process Types"
                   options={processTypeOptions}
                   getOptionLabel={(o) => o.name}
                   value={processTypeOptions.find((pt) => pt.id === field.value) ?? null}
@@ -254,8 +260,10 @@ export default function WorkOrderFormPage() {
               name="powderColorId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/powder-colors/new"
+                  addNewLabel="Add New Powder Color"
                   options={powderColorOptions}
                   getOptionLabel={(o) => o.name}
                   value={powderColorOptions.find((pc) => pc.id === field.value) ?? null}

@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Typography,
   IconButton,
   Table,
@@ -23,6 +22,7 @@ import {
 import { Add, Delete } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   usePowderIndent,
   useCreatePowderIndent,
@@ -159,8 +159,10 @@ export default function PowderIndentFormPage() {
               name="productionWorkOrderId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/ppc/work-orders/new"
+                  addNewLabel="Add New Production Work Order"
                   options={pwoOptions}
                   getOptionLabel={(o) => o.name}
                   value={pwoOptions.find((p) => p.id === field.value) ?? null}
@@ -225,8 +227,10 @@ export default function PowderIndentFormPage() {
                       name={`lines.${index}.powderColorId`}
                       control={control}
                       render={({ field: f }) => (
-                        <Autocomplete
+                        <LookupAutocomplete
                           size="small"
+                          addNewPath="/masters/powder-colors/new"
+                          addNewLabel="Add New Powder Color"
                           options={pcOptions}
                           getOptionLabel={(o) => `${o.name}${o.code ? ` (${o.code})` : ''}`}
                           value={pcOptions.find((p) => p.id === f.value) ?? null}

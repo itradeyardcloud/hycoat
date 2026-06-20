@@ -10,7 +10,6 @@ import {
   Chip,
   Stack,
   MenuItem,
-  Autocomplete,
   Card,
   CardActionArea,
   CardContent,
@@ -22,6 +21,7 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/common/DataTable';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EmptyState from '@/components/common/EmptyState';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useWorkOrders, useDeleteWorkOrder, useWorkOrderStats } from '@/hooks/useWorkOrders';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import { useProcessTypes } from '@/hooks/useProcessTypes';
@@ -264,8 +264,10 @@ export default function WorkOrdersPage() {
           ))}
         </TextField>
 
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/customers/new"
+          addNewLabel="Add New Customer"
           options={customerOptions}
           getOptionLabel={(o) => o.name}
           value={customerFilter}
@@ -278,8 +280,10 @@ export default function WorkOrdersPage() {
           isOptionEqualToValue={(opt, val) => opt.id === val.id}
         />
 
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/process-types"
+          addNewLabel="Manage Process Types"
           options={processTypeOptions}
           getOptionLabel={(o) => o.name}
           value={processTypeFilter}
@@ -292,8 +296,10 @@ export default function WorkOrdersPage() {
           isOptionEqualToValue={(opt, val) => opt.id === val.id}
         />
 
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/powder-colors/new"
+          addNewLabel="Add New Powder Color"
           options={powderColorOptions}
           getOptionLabel={(o) => o.name}
           value={powderColorFilter}

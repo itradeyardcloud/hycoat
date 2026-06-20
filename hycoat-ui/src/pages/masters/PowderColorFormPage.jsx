@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Box, Button, TextField, Grid, CircularProgress, Autocomplete } from '@mui/material';
+import { Box, Button, TextField, Grid, CircularProgress } from '@mui/material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { usePowderColor, useCreatePowderColor, useUpdatePowderColor } from '@/hooks/usePowderColors';
 import { useVendorLookup } from '@/hooks/useVendors';
 
@@ -122,7 +123,9 @@ export default function PowderColorFormPage() {
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6 }}>
-            <Autocomplete
+            <LookupAutocomplete
+              addNewPath="/masters/vendors/new"
+              addNewLabel="Add New Vendor"
               options={vendors}
               getOptionLabel={(o) => o.name ?? ''}
               value={vendors.find((v) => v.id === vendorIdValue) ?? null}

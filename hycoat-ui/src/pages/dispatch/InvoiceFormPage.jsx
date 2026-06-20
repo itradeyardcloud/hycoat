@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Typography,
   IconButton,
   Table,
@@ -30,6 +29,7 @@ import {
 import { Add, Delete, AutoFixHigh } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useInvoice,
   useCreateInvoice,
@@ -259,8 +259,10 @@ export default function InvoiceFormPage() {
               name="workOrderId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/sales/work-orders/new"
+                  addNewLabel="Add New Work Order"
                   options={woOptions}
                   getOptionLabel={(o) => o.name}
                   value={woOptions.find((w) => w.id === field.value) ?? null}
@@ -286,8 +288,10 @@ export default function InvoiceFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -457,8 +461,10 @@ export default function InvoiceFormPage() {
                       name={`lineItems.${index}.sectionProfileId`}
                       control={control}
                       render={({ field: f }) => (
-                        <Autocomplete
+                        <LookupAutocomplete
                           size="small"
+                          addNewPath="/masters/section-profiles/new"
+                          addNewLabel="Add New Section Profile"
                           options={spOptions}
                           getOptionLabel={(o) => o.name}
                           value={spOptions.find((s) => s.id === f.value) ?? null}

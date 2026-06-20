@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Box, Grid, Autocomplete, TextField, Typography } from '@mui/material';
+import { Box, Grid, TextField, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import PageHeader from '@/components/common/PageHeader';
 import KPICard from '@/components/dashboard/KPICard';
 import DataTable from '@/components/common/DataTable';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useCustomerHistory } from '@/hooks/useReports';
 import { formatDate, formatCurrency, formatSFT } from '@/utils/formatters';
 import api from '@/services/api';
@@ -36,7 +37,9 @@ export default function CustomerHistoryPage() {
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <Autocomplete
+          <LookupAutocomplete
+            addNewPath="/masters/customers/new"
+            addNewLabel="Add New Customer"
             options={customerOptions ?? []}
             getOptionLabel={(o) => o.name ?? ''}
             isOptionEqualToValue={(o, v) => o.id === v.id}

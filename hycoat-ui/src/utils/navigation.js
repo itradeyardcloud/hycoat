@@ -35,7 +35,6 @@ export const navigationItems = [
   {
     label: 'Sales',
     icon: ShoppingCartIcon,
-    hidden: true,
     departments: ['Sales'],
     groups: ACCESS_GROUPS.SALES,
     children: [

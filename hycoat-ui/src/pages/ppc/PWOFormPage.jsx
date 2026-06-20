@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Chip,
   Typography,
   IconButton,
@@ -32,6 +31,7 @@ import {
 import { Add, Delete, Calculate } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useProductionWorkOrder,
   useCreateProductionWorkOrder,
@@ -276,9 +276,11 @@ export default function PWOFormPage() {
               name="workOrderId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
                   disabled={isReadOnly}
+                  addNewPath="/sales/work-orders/new"
+                  addNewLabel="Add New Work Order"
                   options={woOptions}
                   getOptionLabel={(o) => `${o.woNumber} — ${o.customerName}`}
                   value={woOptions.find((w) => w.id === field.value) ?? null}
@@ -335,9 +337,11 @@ export default function PWOFormPage() {
               name="processTypeId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
                   disabled={isReadOnly}
+                  addNewPath="/masters/process-types"
+                  addNewLabel="Manage Process Types"
                   options={processTypeOptions}
                   getOptionLabel={(o) => o.name}
                   value={processTypeOptions.find((pt) => pt.id === field.value) ?? null}
@@ -362,9 +366,11 @@ export default function PWOFormPage() {
               name="powderColorId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
                   disabled={isReadOnly}
+                  addNewPath="/masters/powder-colors/new"
+                  addNewLabel="Add New Powder Color"
                   options={powderColorOptions}
                   getOptionLabel={(o) => o.name}
                   value={powderColorOptions.find((pc) => pc.id === field.value) ?? null}
@@ -382,9 +388,11 @@ export default function PWOFormPage() {
               name="productionUnitId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
                   disabled={isReadOnly}
+                  addNewPath="/masters/production-units"
+                  addNewLabel="Manage Production Units"
                   options={unitOptions}
                   getOptionLabel={(o) => o.name}
                   value={unitOptions.find((u) => u.id === field.value) ?? null}
@@ -507,9 +515,11 @@ export default function PWOFormPage() {
                             name={`lineItems.${index}.sectionProfileId`}
                             control={control}
                             render={({ field: f }) => (
-                              <Autocomplete
+                              <LookupAutocomplete
                                 size="small"
                                 disabled={isReadOnly}
+                                addNewPath="/masters/section-profiles/new"
+                                addNewLabel="Add New Section Profile"
                                 options={sectionOptions}
                                 getOptionLabel={(o) => o.name}
                                 value={

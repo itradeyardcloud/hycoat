@@ -14,7 +14,6 @@ import {
   Typography,
   Stack,
   MenuItem,
-  Autocomplete,
 } from '@mui/material';
 import { Add, Search, Edit, Delete } from '@mui/icons-material';
 import toast from 'react-hot-toast';
@@ -22,6 +21,7 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/common/DataTable';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EmptyState from '@/components/common/EmptyState';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useInquiries, useInquiryStats, useDeleteInquiry } from '@/hooks/useInquiries';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import useDebounce from '@/hooks/useDebounce';
@@ -237,8 +237,10 @@ export default function InquiriesPage() {
             </MenuItem>
           ))}
         </TextField>
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/customers/new"
+          addNewLabel="Add New Customer"
           options={customerOptions}
           getOptionLabel={(o) => o.name}
           value={customerFilter}

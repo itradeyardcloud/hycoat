@@ -10,7 +10,6 @@ import {
   Chip,
   Stack,
   MenuItem,
-  Autocomplete,
 } from '@mui/material';
 import { Add, Search, Edit, Delete, PhotoCamera } from '@mui/icons-material';
 import toast from 'react-hot-toast';
@@ -18,6 +17,7 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/common/DataTable';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EmptyState from '@/components/common/EmptyState';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useProductionLogs, useDeleteProductionLog } from '@/hooks/useProductionLogs';
 import { useProductionWorkOrderLookup } from '@/hooks/useProductionWorkOrders';
 import useDebounce from '@/hooks/useDebounce';
@@ -229,8 +229,10 @@ export default function CoatingLogsPage() {
           <MenuItem value="Day">Day</MenuItem>
           <MenuItem value="Night">Night</MenuItem>
         </TextField>
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/ppc/work-orders/new"
+          addNewLabel="Add New Production Work Order"
           options={pwoOptions}
           getOptionLabel={(o) => o.name}
           value={pwoFilter}

@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Chip,
   Typography,
   ToggleButton,
@@ -28,6 +27,7 @@ import {
 import { PhotoCamera, Close, CheckCircle, Cancel } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useIncomingInspection,
   useCreateIncomingInspection,
@@ -255,8 +255,10 @@ export default function IncomingInspectionFormPage() {
                 name="materialInwardId"
                 control={control}
                 render={({ field }) => (
-                  <Autocomplete
+                  <LookupAutocomplete
                     size="small"
+                    addNewPath="/material-inward/inwards/new"
+                    addNewLabel="Add New Material Inward"
                     options={inwardOptions}
                     getOptionLabel={(o) => o.name}
                     value={inwardOptions.find((i) => i.id === field.value) ?? null}

@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +25,7 @@ import {
 import { Add, Delete, Calculate } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useProformaInvoice,
   useCreatePI,
@@ -256,8 +256,10 @@ export default function PIFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -282,8 +284,10 @@ export default function PIFormPage() {
               name="quotationId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/sales/quotations/new"
+                  addNewLabel="Add New Quotation"
                   options={quotationOptions}
                   getOptionLabel={(o) => o.name}
                   value={quotationOptions.find((q) => q.id === field.value) ?? null}
@@ -381,8 +385,10 @@ export default function PIFormPage() {
                       name={`lineItems.${index}.sectionProfileId`}
                       control={control}
                       render={({ field: f }) => (
-                        <Autocomplete
+                        <LookupAutocomplete
                           size="small"
+                          addNewPath="/masters/section-profiles/new"
+                          addNewLabel="Add New Section Profile"
                           options={sectionProfileOptions}
                           getOptionLabel={(o) => o.name}
                           value={sectionProfileOptions.find((sp) => sp.id === f.value) ?? null}

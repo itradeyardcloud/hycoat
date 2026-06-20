@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Typography,
   IconButton,
   Table,
@@ -24,6 +23,7 @@ import {
 import { Add, Delete } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   usePurchaseOrder,
   useCreatePurchaseOrder,
@@ -216,8 +216,10 @@ export default function PurchaseOrderFormPage() {
               name="vendorId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/vendors/new"
+                  addNewLabel="Add New Vendor"
                   options={vendorOptions}
                   getOptionLabel={(o) => o.name}
                   value={vendorOptions.find((v) => v.id === field.value) ?? null}
@@ -295,8 +297,10 @@ export default function PurchaseOrderFormPage() {
                         name={`lines.${index}.powderColorId`}
                         control={control}
                         render={({ field: f }) => (
-                          <Autocomplete
+                          <LookupAutocomplete
                             size="small"
+                            addNewPath="/masters/powder-colors/new"
+                            addNewLabel="Add New Powder Color"
                             options={pcOptions}
                             getOptionLabel={(o) => `${o.name}${o.code ? ` (${o.code})` : ''}`}
                             value={pcOptions.find((p) => p.id === f.value) ?? null}

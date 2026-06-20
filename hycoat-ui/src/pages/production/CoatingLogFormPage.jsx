@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Typography,
   ToggleButton,
   ToggleButtonGroup,
@@ -23,6 +22,7 @@ import {
 import { PhotoCamera, Close } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useProductionLog,
   useCreateProductionLog,
@@ -188,8 +188,10 @@ export default function CoatingLogFormPage() {
               name="productionWorkOrderId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/ppc/work-orders/new"
+                  addNewLabel="Add New Production Work Order"
                   options={pwoOptions}
                   getOptionLabel={(o) => o.name}
                   value={pwoOptions.find((p) => p.id === field.value) ?? null}

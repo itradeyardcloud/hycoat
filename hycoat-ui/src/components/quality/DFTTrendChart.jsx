@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Autocomplete, TextField, Typography, CircularProgress } from '@mui/material';
+import { Box, TextField, Typography, CircularProgress } from '@mui/material';
 import {
   LineChart,
   Line,
@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { useDFTTrend } from '@/hooks/useInProcessInspections';
 import { useProductionWorkOrderLookup } from '@/hooks/useProductionWorkOrders';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 
 const DFT_MIN = 60;
 const DFT_MAX = 80;
@@ -38,8 +39,10 @@ export default function DFTTrendChart() {
 
   return (
     <Box>
-      <Autocomplete
+      <LookupAutocomplete
         size="small"
+        addNewPath="/ppc/work-orders/new"
+        addNewLabel="Add New Production Work Order"
         options={pwoOptions}
         getOptionLabel={(o) => o.name}
         value={selectedPWO}

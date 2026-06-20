@@ -9,7 +9,6 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Autocomplete,
   Chip,
   Typography,
   IconButton,
@@ -29,6 +28,7 @@ import {
 import { Add, Delete, PhotoCamera, Close } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useMaterialInward,
   useCreateMaterialInward,
@@ -273,10 +273,12 @@ export default function MaterialInwardFormPage() {
               name="workOrderId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/sales/work-orders/new"
+                  addNewLabel="Add New Work Order"
                   options={woOptions}
-                  getOptionLabel={(o) => `${o.woNumber} — ${o.customerName}`}
+                  getOptionLabel={(o) => `${o.woNumber || o.wONumber || o.WONumber || ''} — ${o.customerName || ''}`}
                   value={woOptions.find((w) => w.id === field.value) ?? null}
                   onChange={(_, val) => handleWOChange(val)}
                   renderInput={(params) => <TextField {...params} label="Work Order" />}
@@ -292,8 +294,10 @@ export default function MaterialInwardFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -344,8 +348,10 @@ export default function MaterialInwardFormPage() {
               name="processTypeId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/process-types"
+                  addNewLabel="Manage Process Types"
                   options={processTypeOptions}
                   getOptionLabel={(o) => o.name}
                   value={processTypeOptions.find((pt) => pt.id === field.value) ?? null}
@@ -389,9 +395,11 @@ export default function MaterialInwardFormPage() {
                   )}
                   {field.value.map((colorId, idx) => (
                     <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Autocomplete
+                      <LookupAutocomplete
                         size="small"
                         sx={{ flex: 1 }}
+                        addNewPath="/masters/powder-colors/new"
+                        addNewLabel="Add New Powder Color"
                         options={powderColorOptions}
                         getOptionLabel={(o) => o.name}
                         value={powderColorOptions.find((pc) => pc.id === colorId) ?? null}
@@ -471,8 +479,10 @@ export default function MaterialInwardFormPage() {
                             name={`lines.${index}.sectionProfileId`}
                             control={control}
                             render={({ field: f }) => (
-                              <Autocomplete
+                              <LookupAutocomplete
                                 size="small"
+                                addNewPath="/masters/section-profiles/new"
+                                addNewLabel="Add New Section Profile"
                                 options={sectionOptions}
                                 getOptionLabel={(o) => o.name}
                                 value={sectionOptions.find((s) => s.id === f.value) ?? null}

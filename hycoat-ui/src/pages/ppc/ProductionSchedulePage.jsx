@@ -16,7 +16,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Autocomplete,
   CircularProgress,
 } from '@mui/material';
 import {
@@ -32,6 +31,7 @@ import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
 import StatusChip from '@/components/common/StatusChip';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import {
   useProductionSchedule,
   useCreateScheduleEntry,
@@ -443,8 +443,10 @@ function AddScheduleDialog({ open, slot, units, pwoOptions, onClose, onSave, sav
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
           <Grid size={12}>
-            <Autocomplete
+            <LookupAutocomplete
               size="small"
+              addNewPath="/ppc/work-orders/new"
+              addNewLabel="Add New Production Work Order"
               options={pwoOptions}
               getOptionLabel={(o) => o.name ?? `PWO #${o.id}`}
               value={pwoOptions.find((p) => p.id === pwoId) ?? null}

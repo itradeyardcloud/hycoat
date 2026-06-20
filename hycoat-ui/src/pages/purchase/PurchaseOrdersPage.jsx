@@ -9,7 +9,6 @@ import {
   Tooltip,
   Chip,
   Stack,
-  Autocomplete,
 } from '@mui/material';
 import { Add, Search, Edit, Delete, PictureAsPdf } from '@mui/icons-material';
 import toast from 'react-hot-toast';
@@ -17,6 +16,7 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/common/DataTable';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EmptyState from '@/components/common/EmptyState';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { usePurchaseOrders, useDeletePurchaseOrder } from '@/hooks/usePurchaseOrders';
 import { purchaseOrderService } from '@/services/purchaseService';
 import { useVendorLookup } from '@/hooks/useVendors';
@@ -237,8 +237,10 @@ export default function PurchaseOrdersPage() {
           sx={{ minWidth: 160 }}
           slotProps={{ inputLabel: { shrink: true } }}
         />
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/vendors/new"
+          addNewLabel="Add New Vendor"
           options={vendorOptions}
           getOptionLabel={(o) => o.name}
           value={vendorFilter}

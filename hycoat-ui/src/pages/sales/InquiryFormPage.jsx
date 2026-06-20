@@ -10,11 +10,11 @@ import {
   Grid,
   CircularProgress,
   MenuItem,
-  Autocomplete,
   Chip,
 } from '@mui/material';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/common/PageHeader';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useInquiry, useCreateInquiry, useUpdateInquiry } from '@/hooks/useInquiries';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import { useProcessTypes } from '@/hooks/useProcessTypes';
@@ -166,8 +166,10 @@ export default function InquiryFormPage() {
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/customers/new"
+                  addNewLabel="Add New Customer"
                   options={customerOptions}
                   getOptionLabel={(o) => o.name}
                   value={customerOptions.find((c) => c.id === field.value) ?? null}
@@ -245,8 +247,10 @@ export default function InquiryFormPage() {
               name="processTypeId"
               control={control}
               render={({ field }) => (
-                <Autocomplete
+                <LookupAutocomplete
                   size="small"
+                  addNewPath="/masters/process-types"
+                  addNewLabel="Manage Process Types"
                   options={processTypeOptions}
                   getOptionLabel={(o) => o.name}
                   value={processTypeOptions.find((pt) => pt.id === field.value) ?? null}

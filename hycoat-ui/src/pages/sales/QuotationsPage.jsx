@@ -10,7 +10,6 @@ import {
   Chip,
   Stack,
   MenuItem,
-  Autocomplete,
 } from '@mui/material';
 import { Add, Search, Edit, Delete, PictureAsPdf } from '@mui/icons-material';
 import toast from 'react-hot-toast';
@@ -18,6 +17,7 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/common/DataTable';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EmptyState from '@/components/common/EmptyState';
+import LookupAutocomplete from '@/components/common/LookupAutocomplete';
 import { useQuotations, useDeleteQuotation } from '@/hooks/useQuotations';
 import { useCustomerLookup } from '@/hooks/useCustomers';
 import { quotationService } from '@/services/salesService';
@@ -211,8 +211,10 @@ export default function QuotationsPage() {
             </MenuItem>
           ))}
         </TextField>
-        <Autocomplete
+        <LookupAutocomplete
           size="small"
+          addNewPath="/masters/customers/new"
+          addNewLabel="Add New Customer"
           options={customerOptions}
           getOptionLabel={(o) => o.name}
           value={customerFilter}

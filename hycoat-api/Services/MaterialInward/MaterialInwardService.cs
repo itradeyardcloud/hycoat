@@ -6,6 +6,7 @@ using HycoatApi.DTOs.MaterialInward;
 using HycoatApi.Models.Common;
 using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace HycoatApi.Services.MaterialInward;
 
@@ -132,15 +133,23 @@ public class MaterialInwardService : IMaterialInwardService
 
     public async Task<MaterialInwardDetailDto> GetByIdAsync(int id)
     {
-        var entity = await _db.MaterialInwards
+        var hasPowderColorsTable = await HasMaterialInwardPowderColorsTableAsync();
+
+        var query = _db.MaterialInwards
             .AsNoTracking()
             .Include(m => m.Customer)
             .Include(m => m.WorkOrder)
             .Include(m => m.ProcessType)
-            .Include(m => m.PowderColors).ThenInclude(c => c.PowderColor)
             .Include(m => m.ReceivedByUser)
             .Include(m => m.Lines).ThenInclude(l => l.SectionProfile)
-            .FirstOrDefaultAsync(m => m.Id == id)
+            .AsQueryable();
+
+        if (hasPowderColorsTable)
+        {
+            query = query.Include(m => m.PowderColors).ThenInclude(c => c.PowderColor);
+        }
+
+        var entity = await query.FirstOrDefaultAsync(m => m.Id == id)
             ?? throw new KeyNotFoundException($"Material Inward with ID {id} not found.");
 
         var dto = new MaterialInwardDetailDto
@@ -158,13 +167,15 @@ public class MaterialInwardService : IMaterialInwardService
             UnloadingLocation = entity.UnloadingLocation,
             ProcessTypeId = entity.ProcessTypeId,
             ProcessTypeName = entity.ProcessType?.Name,
-            PowderColors = entity.PowderColors.Select(c => new DTOs.MaterialInward.MaterialInwardPowderColorDto
-            {
-                Id = c.Id,
-                PowderColorId = c.PowderColorId,
-                ColorName = c.PowderColor.ColorName,
-                PowderCode = c.PowderColor.PowderCode,
-            }).ToList(),
+            PowderColors = hasPowderColorsTable
+                ? entity.PowderColors.Select(c => new DTOs.MaterialInward.MaterialInwardPowderColorDto
+                {
+                    Id = c.Id,
+                    PowderColorId = c.PowderColorId,
+                    ColorName = c.PowderColor.ColorName,
+                    PowderCode = c.PowderColor.PowderCode,
+                }).ToList()
+                : new List<DTOs.MaterialInward.MaterialInwardPowderColorDto>(),
             ReceivedByName = entity.ReceivedByUser?.FullName,
             Status = entity.Status,
             Notes = entity.Notes,
@@ -320,10 +331,18 @@ public class MaterialInwardService : IMaterialInwardService
 
     public async Task<MaterialInwardDto> UpdateAsync(int id, UpdateMaterialInwardDto dto, string userId)
     {
-        var entity = await _db.MaterialInwards
+        var hasPowderColorsTable = await HasMaterialInwardPowderColorsTableAsync();
+
+        var query = _db.MaterialInwards
             .Include(m => m.Lines)
-            .Include(m => m.PowderColors)
-            .FirstOrDefaultAsync(m => m.Id == id)
+            .AsQueryable();
+
+        if (hasPowderColorsTable)
+        {
+            query = query.Include(m => m.PowderColors);
+        }
+
+        var entity = await query.FirstOrDefaultAsync(m => m.Id == id)
             ?? throw new KeyNotFoundException($"Material Inward with ID {id} not found.");
 
         // Validate customer exists
@@ -358,12 +377,15 @@ public class MaterialInwardService : IMaterialInwardService
         entity.UpdatedBy = userId;
         entity.UpdatedAt = DateTime.UtcNow;
 
-        // Replace powder colors
-        _db.MaterialInwardPowderColors.RemoveRange(entity.PowderColors);
-        entity.PowderColors.Clear();
-        foreach (var colorId in dto.PowderColorIds.Distinct())
+        if (hasPowderColorsTable)
         {
-            entity.PowderColors.Add(new Models.MaterialInward.MaterialInwardPowderColor { PowderColorId = colorId });
+            // Replace powder colors
+            _db.MaterialInwardPowderColors.RemoveRange(entity.PowderColors);
+            entity.PowderColors.Clear();
+            foreach (var colorId in dto.PowderColorIds.Distinct())
+            {
+                entity.PowderColors.Add(new Models.MaterialInward.MaterialInwardPowderColor { PowderColorId = colorId });
+            }
         }
 
         // Diff lines: update existing, add new, remove missing
@@ -593,7 +615,8 @@ public class MaterialInwardService : IMaterialInwardService
             .Include(w => w.Customer)
             .Include(w => w.ProcessType)
             .Include(w => w.PowderColor)
-            .Where(w => !w.IsDeleted && w.Status != "Closed" && w.Status != "Cancelled")
+            .Where(w => !w.IsDeleted &&
+                        (w.Status == null || (w.Status != "Closed" && w.Status != "Cancelled")))
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -619,5 +642,24 @@ public class MaterialInwardService : IMaterialInwardService
                 PowderColorName = w.PowderColor != null ? w.PowderColor.ColorName : null,
             })
             .ToListAsync();
+    }
+
+    private async Task<bool> HasMaterialInwardPowderColorsTableAsync()
+    {
+        var connection = _db.Database.GetDbConnection();
+        var shouldClose = connection.State != ConnectionState.Open;
+        if (shouldClose)
+        {
+            await connection.OpenAsync();
+        }
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT CASE WHEN OBJECT_ID(N'dbo.MaterialInwardPowderColors', N'U') IS NULL THEN 0 ELSE 1 END";
+        var result = await command.ExecuteScalarAsync();
+        if (shouldClose)
+        {
+            await connection.CloseAsync();
+        }
+        return Convert.ToInt32(result) == 1;
     }
 }
