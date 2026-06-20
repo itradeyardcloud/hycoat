@@ -32,11 +32,6 @@ public class MaterialInwardConfiguration : IEntityTypeConfiguration<Models.Mater
             .HasForeignKey(e => e.ProcessTypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(e => e.PowderColor)
-            .WithMany()
-            .HasForeignKey(e => e.PowderColorId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasOne(e => e.ReceivedByUser)
             .WithMany()
             .HasForeignKey(e => e.ReceivedByUserId)

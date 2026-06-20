@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.Sales;
 using HycoatApi.Models.Sales;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Sales;
@@ -13,6 +14,7 @@ public class ProformaInvoiceService : IProformaInvoiceService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly PIPdfService _pdfService;
+    private readonly IBlobStorageService _blobStorageService;
 
     private const decimal GST_RATE = 0.09m; // 9% each for CGST/SGST
     private const decimal IGST_RATE = 0.18m; // 18% IGST
@@ -24,11 +26,12 @@ public class ProformaInvoiceService : IProformaInvoiceService
         ["Sent"] = ["Accepted", "Rejected"],
     };
 
-    public ProformaInvoiceService(AppDbContext db, IMapper mapper, PIPdfService pdfService)
+    public ProformaInvoiceService(AppDbContext db, IMapper mapper, PIPdfService pdfService, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
         _pdfService = pdfService;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<PIDto>> GetAllAsync(
@@ -310,16 +313,14 @@ public class ProformaInvoiceService : IProformaInvoiceService
         var detail = _mapper.Map<PIDetailDto>(pi);
         var pdf = _pdfService.Generate(detail);
 
-        var uploadsDir = Path.Combine("wwwroot", "uploads", "proforma-invoices");
-        Directory.CreateDirectory(uploadsDir);
         var fileName = $"{pi.PINumber}.pdf";
-        var filePath = Path.Combine(uploadsDir, fileName);
-        await File.WriteAllBytesAsync(filePath, pdf);
+        var blobName = $"uploads/proforma-invoices/{fileName}";
+        var uploadResult = await _blobStorageService.UploadBytesAsync(pdf, "application/pdf", blobName);
 
         pi = await _db.ProformaInvoices.FindAsync(id);
         if (pi != null)
         {
-            pi.FileUrl = $"/uploads/proforma-invoices/{fileName}";
+            pi.FileUrl = uploadResult.BlobUrl;
             await _db.SaveChangesAsync();
         }
 

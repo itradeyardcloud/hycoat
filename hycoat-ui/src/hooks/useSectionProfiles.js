@@ -18,6 +18,13 @@ export const useSectionProfileLookup = () =>
   useQuery({
     queryKey: ['sectionProfiles', 'lookup'],
     queryFn: () => sectionProfileService.lookup(),
+    select: (response) => ({
+      ...response,
+      data: (response?.data ?? []).map((item) => ({
+        ...item,
+        name: item.name ?? item.sectionNumber ?? '',
+      })),
+    }),
     staleTime: 10 * 60 * 1000,
   });
 

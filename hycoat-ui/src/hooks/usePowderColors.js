@@ -18,6 +18,13 @@ export const usePowderColorLookup = () =>
   useQuery({
     queryKey: ['powderColors', 'lookup'],
     queryFn: () => powderColorService.lookup(),
+    select: (response) => ({
+      ...response,
+      data: (response?.data ?? []).map((item) => ({
+        ...item,
+        name: item.name ?? item.colorName ?? item.powderCode ?? '',
+      })),
+    }),
     staleTime: 10 * 60 * 1000,
   });
 

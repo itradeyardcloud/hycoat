@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Dispatch;
 using HycoatApi.Models.Common;
 using HycoatApi.Models.Dispatch;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Dispatch;
@@ -12,13 +13,13 @@ public class DeliveryChallanService : IDeliveryChallanService
 {
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
-    private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
 
-    public DeliveryChallanService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public DeliveryChallanService(AppDbContext db, IMapper mapper, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
-        _env = env;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<DeliveryChallanDto>> GetAllAsync(
@@ -290,20 +291,13 @@ public class DeliveryChallanService : IDeliveryChallanService
             var year = DateTime.UtcNow.Year;
             var month = DateTime.UtcNow.Month.ToString("D2");
             var sanitizedFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var storedPath = $"uploads/{year}/{month}/{sanitizedFileName}";
-            var fullPath = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"), storedPath);
-
-            var dir = Path.GetDirectoryName(fullPath)!;
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            using var stream = new FileStream(fullPath, FileMode.Create);
-            await file.CopyToAsync(stream);
+            var blobName = $"uploads/delivery-challans/{year}/{month}/{sanitizedFileName}";
+            var uploadResult = await _blobStorageService.UploadAsync(file, blobName);
 
             var attachment = new FileAttachment
             {
                 FileName = file.FileName,
-                StoredPath = storedPath,
+                StoredPath = uploadResult.BlobUrl,
                 ContentType = file.ContentType,
                 FileSizeBytes = file.Length,
                 EntityType = "DeliveryChallan",

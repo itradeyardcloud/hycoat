@@ -8,14 +8,21 @@ public class MaterialInwardDetailDto : MaterialInwardDto
     public string? UnloadingLocation { get; set; }
     public int? ProcessTypeId { get; set; }
     public string? ProcessTypeName { get; set; }
-    public int? PowderColorId { get; set; }
-    public string? PowderColorName { get; set; }
+    public List<MaterialInwardPowderColorDto> PowderColors { get; set; } = new();
     public string? ReceivedByName { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public List<MaterialInwardLineDto> Lines { get; set; } = new();
     public List<FileAttachmentDto> Photos { get; set; } = new();
+}
+
+public class MaterialInwardPowderColorDto
+{
+    public int Id { get; set; }
+    public int PowderColorId { get; set; }
+    public string ColorName { get; set; } = string.Empty;
+    public string? PowderCode { get; set; }
 }
 
 public class MaterialInwardLineDto

@@ -5,6 +5,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.Masters;
 using HycoatApi.Models.Masters;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Masters;
@@ -13,16 +14,16 @@ public class SectionProfileService : ISectionProfileService
 {
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
-    private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
 
     private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".pdf"];
     private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
 
-    public SectionProfileService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public SectionProfileService(AppDbContext db, IMapper mapper, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
-        _env = env;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<SectionProfileDto>> GetAllAsync(string? search, int page, int pageSize, string sortBy, bool sortDesc)
@@ -133,18 +134,10 @@ public class SectionProfileService : ISectionProfileService
         if (file.Length > MaxFileSize)
             throw new InvalidOperationException("File size must not exceed 10MB.");
 
-        var uploadsDir = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"), "uploads", "drawings");
-        Directory.CreateDirectory(uploadsDir);
-
         var fileName = $"{id}_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}{ext}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        var url = $"/uploads/drawings/{fileName}";
+        var blobName = $"uploads/drawings/{fileName}";
+        var uploadResult = await _blobStorageService.UploadAsync(file, blobName);
+        var url = uploadResult.BlobUrl;
         entity.DrawingFileUrl = url;
         entity.UpdatedBy = userId;
         entity.UpdatedAt = DateTime.UtcNow;

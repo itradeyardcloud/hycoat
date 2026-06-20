@@ -16,7 +16,6 @@ public class MaterialInward : BaseEntity
     public string? VehicleNumber { get; set; }
     public string? UnloadingLocation { get; set; }
     public int? ProcessTypeId { get; set; }
-    public int? PowderColorId { get; set; }
     public string? ReceivedByUserId { get; set; }
     public string Status { get; set; } = "Received";
     public string? Notes { get; set; }
@@ -25,8 +24,8 @@ public class MaterialInward : BaseEntity
     public Customer Customer { get; set; } = null!;
     public WorkOrder? WorkOrder { get; set; }
     public ProcessType? ProcessType { get; set; }
-    public PowderColor? PowderColor { get; set; }
     public AppUser? ReceivedByUser { get; set; }
+    public ICollection<MaterialInwardPowderColor> PowderColors { get; set; } = new List<MaterialInwardPowderColor>();
     public ICollection<MaterialInwardLine> Lines { get; set; } = new List<MaterialInwardLine>();
     public ICollection<IncomingInspection> IncomingInspections { get; set; } = new List<IncomingInspection>();
 }

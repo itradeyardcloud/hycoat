@@ -99,13 +99,22 @@ public class DocumentBundleEmailService : IDocumentBundleEmailService
 
             if (tc != null && !string.IsNullOrEmpty(tc.FileUrl))
             {
-                var tcPdfPath = Path.Combine(
-                    Directory.GetCurrentDirectory(), "wwwroot",
-                    tc.FileUrl.TrimStart('/'));
-
-                if (File.Exists(tcPdfPath))
+                if (Uri.TryCreate(tc.FileUrl, UriKind.Absolute, out var absoluteTcUrl))
                 {
-                    message.Attachments.Add(new Attachment(tcPdfPath));
+                    using var http = new HttpClient();
+                    var tcBytes = await http.GetByteArrayAsync(absoluteTcUrl);
+                    message.Attachments.Add(new Attachment(new MemoryStream(tcBytes), $"TestCertificate-{tc.CertificateNumber}.pdf", "application/pdf"));
+                }
+                else
+                {
+                    var tcPdfPath = Path.Combine(
+                        Directory.GetCurrentDirectory(), "wwwroot",
+                        tc.FileUrl.TrimStart('/'));
+
+                    if (File.Exists(tcPdfPath))
+                    {
+                        message.Attachments.Add(new Attachment(tcPdfPath));
+                    }
                 }
             }
         }

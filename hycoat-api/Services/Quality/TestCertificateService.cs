@@ -3,6 +3,7 @@ using HycoatApi.Data;
 using HycoatApi.DTOs;
 using HycoatApi.DTOs.Quality;
 using HycoatApi.Models.Quality;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Quality;
@@ -12,12 +13,14 @@ public class TestCertificateService : ITestCertificateService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
 
-    public TestCertificateService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public TestCertificateService(AppDbContext db, IMapper mapper, IWebHostEnvironment env, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
         _env = env;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<TestCertificateDto>> GetAllAsync(
@@ -221,16 +224,11 @@ public class TestCertificateService : ITestCertificateService
         var pdfService = new TestCertificatePdfService();
         var pdfBytes = pdfService.Generate(_mapper.Map<TestCertificateDetailDto>(tc));
 
-        // Save PDF
-        var uploadsDir = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"),
-            "uploads", "certificates");
-        Directory.CreateDirectory(uploadsDir);
-
         var fileName = $"{tc.CertificateNumber.Replace("/", "-")}.pdf";
-        var filePath = Path.Combine(uploadsDir, fileName);
-        await File.WriteAllBytesAsync(filePath, pdfBytes);
+        var blobName = $"uploads/certificates/{fileName}";
+        var uploadResult = await _blobStorageService.UploadBytesAsync(pdfBytes, "application/pdf", blobName);
 
-        tc.FileUrl = $"/uploads/certificates/{fileName}";
+        tc.FileUrl = uploadResult.BlobUrl;
         await _db.SaveChangesAsync();
 
         return pdfBytes;
@@ -245,6 +243,17 @@ public class TestCertificateService : ITestCertificateService
 
         if (string.IsNullOrEmpty(tc.FileUrl))
             return null;
+
+        var blobDownload = await _blobStorageService.DownloadAsync(tc.FileUrl);
+        if (blobDownload != null)
+        {
+            await using var blobStream = blobDownload.Stream;
+            await using var memory = new MemoryStream();
+            await blobStream.CopyToAsync(memory);
+            var blobBytes = memory.ToArray();
+            var blobFileName = $"{tc.CertificateNumber}.pdf";
+            return (blobBytes, blobFileName);
+        }
 
         var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
         var fullPath = Path.Combine(webRoot, tc.FileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));

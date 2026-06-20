@@ -1,6 +1,7 @@
 using HycoatApi.Data;
 using HycoatApi.DTOs.Files;
 using HycoatApi.Models.Common;
+using HycoatApi.Services.Storage;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,13 +26,15 @@ public class FileService : IFileService
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _configuration;
+    private readonly IBlobStorageService _blobStorageService;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
-    public FileService(AppDbContext db, IWebHostEnvironment env, IConfiguration configuration)
+    public FileService(AppDbContext db, IWebHostEnvironment env, IConfiguration configuration, IBlobStorageService blobStorageService)
     {
         _db = db;
         _env = env;
         _configuration = configuration;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<FileAttachmentDto> UploadAsync(
@@ -72,27 +75,14 @@ public class FileService : IFileService
         var safeEntityType = SanitizePathSegment(entityType);
         var fileExtension = Path.GetExtension(file.FileName);
         var storedFileName = $"{Guid.NewGuid():N}{fileExtension}";
-
-        var uploadRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-        var relativeFolder = Path.Combine("uploads", safeEntityType, entityId.ToString());
-        var absoluteFolder = Path.Combine(uploadRoot, relativeFolder);
-        Directory.CreateDirectory(absoluteFolder);
-
-        var absolutePath = Path.Combine(absoluteFolder, storedFileName);
-
-        await using (var stream = new FileStream(absolutePath, FileMode.CreateNew))
-        {
-            await file.CopyToAsync(stream, cancellationToken);
-        }
-
-        var relativePath = Path.Combine(relativeFolder, storedFileName)
-            .Replace("\\", "/");
+        var blobName = $"uploads/{safeEntityType}/{entityId}/{storedFileName}";
+        var uploadResult = await _blobStorageService.UploadAsync(file, blobName, cancellationToken);
 
         var attachment = new FileAttachment
         {
             FileName = Path.GetFileName(file.FileName),
             StoredFileName = storedFileName,
-            StoredPath = relativePath,
+            StoredPath = uploadResult.BlobUrl,
             ContentType = normalizedContentType,
             FileSizeBytes = file.Length,
             EntityType = entityType,
@@ -124,11 +114,15 @@ public class FileService : IFileService
             .FirstOrDefaultAsync(x => x.Id == fileId && !x.IsDeleted, cancellationToken)
             ?? throw new KeyNotFoundException($"File with ID {fileId} not found.");
 
+        var blobDownload = await _blobStorageService.DownloadAsync(attachment.StoredPath, cancellationToken);
+        if (blobDownload != null)
+        {
+            return (blobDownload.Stream, blobDownload.ContentType, attachment.FileName);
+        }
+
         var absolutePath = BuildAbsolutePath(attachment.StoredPath);
         if (!System.IO.File.Exists(absolutePath))
-        {
-            throw new FileNotFoundException("Stored file does not exist on disk.", absolutePath);
-        }
+            throw new FileNotFoundException("Stored file does not exist on blob or disk.", absolutePath);
 
         var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var contentType = attachment.ContentType
@@ -158,6 +152,8 @@ public class FileService : IFileService
         attachment.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
+
+        await _blobStorageService.DeleteIfExistsAsync(attachment.StoredPath, cancellationToken);
 
         var absolutePath = BuildAbsolutePath(attachment.StoredPath);
         if (System.IO.File.Exists(absolutePath))

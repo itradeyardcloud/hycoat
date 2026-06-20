@@ -10,7 +10,7 @@ public class CreateMaterialInwardDto
     public string? VehicleNumber { get; set; }
     public string? UnloadingLocation { get; set; }
     public int? ProcessTypeId { get; set; }
-    public int? PowderColorId { get; set; }
+    public List<int> PowderColorIds { get; set; } = new();
     public string? Notes { get; set; }
     public List<CreateMaterialInwardLineDto> Lines { get; set; } = new();
 }

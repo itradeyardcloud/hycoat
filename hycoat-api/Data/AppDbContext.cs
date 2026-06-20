@@ -45,6 +45,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
     // Material Inward
     public DbSet<Models.MaterialInward.MaterialInward> MaterialInwards => Set<Models.MaterialInward.MaterialInward>();
     public DbSet<MaterialInwardLine> MaterialInwardLines => Set<MaterialInwardLine>();
+    public DbSet<MaterialInwardPowderColor> MaterialInwardPowderColors => Set<MaterialInwardPowderColor>();
     public DbSet<IncomingInspection> IncomingInspections => Set<IncomingInspection>();
     public DbSet<IncomingInspectionLine> IncomingInspectionLines => Set<IncomingInspectionLine>();
 

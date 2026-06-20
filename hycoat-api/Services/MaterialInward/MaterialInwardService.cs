@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.MaterialInward;
 using HycoatApi.Models.Common;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.MaterialInward;
@@ -12,7 +13,7 @@ public class MaterialInwardService : IMaterialInwardService
 {
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
-    private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
 
     private static readonly Dictionary<string, string[]> StatusTransitions = new()
     {
@@ -25,11 +26,11 @@ public class MaterialInwardService : IMaterialInwardService
     private const int MaxPhotosPerInward = 10;
     private const long MaxPhotoSizeBytes = 5 * 1024 * 1024; // 5MB
 
-    public MaterialInwardService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public MaterialInwardService(AppDbContext db, IMapper mapper, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
-        _env = env;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<MaterialInwardDto>> GetAllAsync(
@@ -136,7 +137,7 @@ public class MaterialInwardService : IMaterialInwardService
             .Include(m => m.Customer)
             .Include(m => m.WorkOrder)
             .Include(m => m.ProcessType)
-            .Include(m => m.PowderColor)
+            .Include(m => m.PowderColors).ThenInclude(c => c.PowderColor)
             .Include(m => m.ReceivedByUser)
             .Include(m => m.Lines).ThenInclude(l => l.SectionProfile)
             .FirstOrDefaultAsync(m => m.Id == id)
@@ -157,8 +158,13 @@ public class MaterialInwardService : IMaterialInwardService
             UnloadingLocation = entity.UnloadingLocation,
             ProcessTypeId = entity.ProcessTypeId,
             ProcessTypeName = entity.ProcessType?.Name,
-            PowderColorId = entity.PowderColorId,
-            PowderColorName = entity.PowderColor?.ColorName,
+            PowderColors = entity.PowderColors.Select(c => new DTOs.MaterialInward.MaterialInwardPowderColorDto
+            {
+                Id = c.Id,
+                PowderColorId = c.PowderColorId,
+                ColorName = c.PowderColor.ColorName,
+                PowderCode = c.PowderColor.PowderCode,
+            }).ToList(),
             ReceivedByName = entity.ReceivedByUser?.FullName,
             Status = entity.Status,
             Notes = entity.Notes,
@@ -222,12 +228,12 @@ public class MaterialInwardService : IMaterialInwardService
                 throw new ArgumentException("Process type not found.");
         }
 
-        // Validate powder color if provided
-        if (dto.PowderColorId.HasValue)
+        // Validate powder colors if provided
+        if (dto.PowderColorIds.Count > 0)
         {
-            var pcExists = await _db.PowderColors.AnyAsync(pc => pc.Id == dto.PowderColorId.Value);
-            if (!pcExists)
-                throw new ArgumentException("Powder color not found.");
+            var validCount = await _db.PowderColors.CountAsync(pc => dto.PowderColorIds.Contains(pc.Id));
+            if (validCount != dto.PowderColorIds.Count)
+                throw new ArgumentException("One or more powder colors not found.");
         }
 
         // Validate section profiles exist
@@ -247,7 +253,6 @@ public class MaterialInwardService : IMaterialInwardService
             VehicleNumber = dto.VehicleNumber,
             UnloadingLocation = dto.UnloadingLocation,
             ProcessTypeId = dto.ProcessTypeId,
-            PowderColorId = dto.PowderColorId,
             ReceivedByUserId = userId,
             Status = "Received",
             Notes = dto.Notes,
@@ -266,6 +271,11 @@ public class MaterialInwardService : IMaterialInwardService
                 Discrepancy = lineDto.QtyReceived - lineDto.QtyAsPerDC,
                 Remarks = lineDto.Remarks,
             });
+        }
+
+        foreach (var colorId in dto.PowderColorIds.Distinct())
+        {
+            entity.PowderColors.Add(new Models.MaterialInward.MaterialInwardPowderColor { PowderColorId = colorId });
         }
 
         _db.MaterialInwards.Add(entity);
@@ -312,6 +322,7 @@ public class MaterialInwardService : IMaterialInwardService
     {
         var entity = await _db.MaterialInwards
             .Include(m => m.Lines)
+            .Include(m => m.PowderColors)
             .FirstOrDefaultAsync(m => m.Id == id)
             ?? throw new KeyNotFoundException($"Material Inward with ID {id} not found.");
 
@@ -343,10 +354,17 @@ public class MaterialInwardService : IMaterialInwardService
         entity.VehicleNumber = dto.VehicleNumber;
         entity.UnloadingLocation = dto.UnloadingLocation;
         entity.ProcessTypeId = dto.ProcessTypeId;
-        entity.PowderColorId = dto.PowderColorId;
         entity.Notes = dto.Notes;
         entity.UpdatedBy = userId;
         entity.UpdatedAt = DateTime.UtcNow;
+
+        // Replace powder colors
+        _db.MaterialInwardPowderColors.RemoveRange(entity.PowderColors);
+        entity.PowderColors.Clear();
+        foreach (var colorId in dto.PowderColorIds.Distinct())
+        {
+            entity.PowderColors.Add(new Models.MaterialInward.MaterialInwardPowderColor { PowderColorId = colorId });
+        }
 
         // Diff lines: update existing, add new, remove missing
         var incomingLineIds = dto.Lines.Where(l => l.Id.HasValue).Select(l => l.Id!.Value).ToHashSet();
@@ -469,11 +487,6 @@ public class MaterialInwardService : IMaterialInwardService
         if (existingCount + files.Count > MaxPhotosPerInward)
             throw new ArgumentException($"Maximum {MaxPhotosPerInward} photos allowed per inward. Currently {existingCount} uploaded.");
 
-        var uploadsDir = Path.Combine(
-            _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"),
-            "uploads", "material-inward", id.ToString());
-        Directory.CreateDirectory(uploadsDir);
-
         var result = new List<FileAttachmentDto>();
 
         foreach (var file in files)
@@ -485,18 +498,12 @@ public class MaterialInwardService : IMaterialInwardService
                 throw new ArgumentException($"File '{file.FileName}' has unsupported type. Allowed: JPEG, PNG, WebP, HEIC.");
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsDir, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var storedPath = $"/uploads/material-inward/{id}/{fileName}";
+            var blobName = $"uploads/material-inward/{id}/{fileName}";
+            var uploadResult = await _blobStorageService.UploadAsync(file, blobName);
             var attachment = new FileAttachment
             {
                 FileName = file.FileName,
-                StoredPath = storedPath,
+                StoredPath = uploadResult.BlobUrl,
                 ContentType = file.ContentType,
                 FileSizeBytes = file.Length,
                 EntityType = "MaterialInward",

@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.Sales;
 using HycoatApi.Models.Sales;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Sales;
@@ -13,6 +14,7 @@ public class QuotationService : IQuotationService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly QuotationPdfService _pdfService;
+    private readonly IBlobStorageService _blobStorageService;
 
     private static readonly Dictionary<string, string[]> StatusTransitions = new()
     {
@@ -21,11 +23,12 @@ public class QuotationService : IQuotationService
         // Accepted, Rejected, Expired are terminal
     };
 
-    public QuotationService(AppDbContext db, IMapper mapper, QuotationPdfService pdfService)
+    public QuotationService(AppDbContext db, IMapper mapper, QuotationPdfService pdfService, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
         _pdfService = pdfService;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<QuotationDto>> GetAllAsync(
@@ -273,18 +276,15 @@ public class QuotationService : IQuotationService
         var detail = _mapper.Map<QuotationDetailDto>(quotation);
         var pdf = _pdfService.Generate(detail);
 
-        // Save PDF to disk
-        var uploadsDir = Path.Combine("wwwroot", "uploads", "quotations");
-        Directory.CreateDirectory(uploadsDir);
         var fileName = $"{quotation.QuotationNumber}.pdf";
-        var filePath = Path.Combine(uploadsDir, fileName);
-        await File.WriteAllBytesAsync(filePath, pdf);
+        var blobName = $"uploads/quotations/{fileName}";
+        var uploadResult = await _blobStorageService.UploadBytesAsync(pdf, "application/pdf", blobName);
 
         // Update FileUrl
         quotation = await _db.Quotations.FindAsync(id);
         if (quotation != null)
         {
-            quotation.FileUrl = $"/uploads/quotations/{fileName}";
+            quotation.FileUrl = uploadResult.BlobUrl;
             await _db.SaveChangesAsync();
         }
 

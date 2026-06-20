@@ -3,6 +3,7 @@ using HycoatApi.Data;
 using HycoatApi.DTOs;
 using HycoatApi.DTOs.Production;
 using HycoatApi.Models.Production;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Production;
@@ -12,6 +13,7 @@ public class ProductionLogService : IProductionLogService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
 
     private static readonly string[] AllowedImageTypes =
         ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -19,11 +21,12 @@ public class ProductionLogService : IProductionLogService
     private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
     private const int MaxPhotosPerLog = 20;
 
-    public ProductionLogService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public ProductionLogService(AppDbContext db, IMapper mapper, IWebHostEnvironment env, IBlobStorageService blobStorageService)
     {
         _db = db;
         _mapper = mapper;
         _env = env;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task<PagedResponse<ProductionLogDto>> GetAllAsync(
@@ -230,24 +233,15 @@ public class ProductionLogService : IProductionLogService
         if (file.Length > MaxFileSize)
             throw new ArgumentException("File size must not exceed 5 MB.");
 
-        // Save file
-        var uploadsDir = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"),
-            "uploads", "production-logs", id.ToString());
-        Directory.CreateDirectory(uploadsDir);
-
         var ext = Path.GetExtension(file.FileName);
         var fileName = $"{Guid.NewGuid()}{ext}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
+        var blobName = $"uploads/production-logs/{id}/{fileName}";
+        var uploadResult = await _blobStorageService.UploadAsync(file, blobName);
 
         var photo = new ProductionPhoto
         {
             ProductionLogId = id,
-            PhotoUrl = $"/uploads/production-logs/{id}/{fileName}",
+            PhotoUrl = uploadResult.BlobUrl,
             CapturedAt = DateTime.UtcNow,
             UploadedByUserId = userId,
             Description = description
@@ -271,7 +265,9 @@ public class ProductionLogService : IProductionLogService
             .FirstOrDefaultAsync(p => p.Id == photoId && p.ProductionLogId == logId)
             ?? throw new KeyNotFoundException($"Photo with ID {photoId} not found for Production Log {logId}.");
 
-        // Delete physical file
+        await _blobStorageService.DeleteIfExistsAsync(photo.PhotoUrl);
+
+        // Legacy fallback for existing local-disk photos
         var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
         var fullPath = Path.Combine(webRoot, photo.PhotoUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
         if (File.Exists(fullPath))

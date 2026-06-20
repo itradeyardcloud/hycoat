@@ -21,12 +21,12 @@ public class DevAuthBypassMiddleware
     {
         var identity = new ClaimsIdentity(new[]
         {
-            // Use Azure AD-style claims so ClaimsHelper works uniformly
-            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", "dev-bypass-user"),
-            new Claim("preferred_username", "admin@hycoat.dev"),
-            new Claim("name", "Dev Admin"),
+            // Use the seeded admin user id so FK-constrained CreatedBy/PreparedBy relations remain valid in dev.
+            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", "user-admin"),
+            new Claim("preferred_username", "admin@hycoat.com"),
+            new Claim("name", "System Administrator"),
             new Claim("roles", "Admin"),
-            new Claim("department", "Development"),
+            new Claim("department", "Admin"),
         }, "DevBypass");
 
         context.User = new ClaimsPrincipal(identity);

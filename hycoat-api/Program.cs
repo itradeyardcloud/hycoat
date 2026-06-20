@@ -15,8 +15,10 @@ using HycoatApi.Services.Reports;
 using HycoatApi.Services.Notifications;
 using HycoatApi.Services.Audit;
 using HycoatApi.Services.Files;
+using HycoatApi.Services.Storage;
 using HycoatApi.Services.Auth;
 using HycoatApi.Hubs;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi;
+using QuestPDF.Infrastructure;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -31,8 +34,13 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/hycoat-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+var runBlobBackfill = args.Any(a => string.Equals(a, "--backfill-blob", StringComparison.OrdinalIgnoreCase));
+var blobBackfillDryRun = args.Any(a => string.Equals(a, "--dry-run", StringComparison.OrdinalIgnoreCase));
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services
 builder.Services.AddControllers();
@@ -185,6 +193,19 @@ builder.Services.AddScoped<ExcelExportService>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.Configure<AzureBlobStorageOptions>(builder.Configuration.GetSection("AzureBlobStorage"));
+builder.Services.AddSingleton(sp =>
+{
+    var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AzureBlobStorageOptions>>().Value;
+    if (string.IsNullOrWhiteSpace(options.ConnectionString))
+    {
+        throw new InvalidOperationException("AzureBlobStorage:ConnectionString is not configured.");
+    }
+
+    return new BlobServiceClient(options.ConnectionString);
+});
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+builder.Services.AddScoped<BlobBackfillService>();
 
 // Dev auth bypass — set "BypassAuth": true in appsettings.Development.json
 var bypassAuth = builder.Configuration.GetValue<bool>("BypassAuth");
@@ -195,6 +216,24 @@ if (bypassAuth)
 }
 
 var app = builder.Build();
+
+if (runBlobBackfill)
+{
+    using var scope = app.Services.CreateScope();
+    var backfillService = scope.ServiceProvider.GetRequiredService<BlobBackfillService>();
+    var summary = await backfillService.RunAsync(blobBackfillDryRun);
+
+    Log.Information(
+        "Blob backfill completed. DryRun={DryRun}, Scanned={Scanned}, Migrated={Migrated}, MissingLocalFiles={MissingLocalFiles}, AlreadyBlob={AlreadyBlob}, UnsupportedPaths={UnsupportedPaths}",
+        summary.DryRun,
+        summary.Scanned,
+        summary.Migrated,
+        summary.MissingLocalFiles,
+        summary.AlreadyBlob,
+        summary.UnsupportedPaths);
+
+    return;
+}
 
 var enableSwagger = builder.Configuration.GetValue<bool>("Swagger:Enabled") || app.Environment.IsDevelopment();
 if (enableSwagger)

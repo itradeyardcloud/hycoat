@@ -5,6 +5,8 @@ using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.MaterialInward;
 using HycoatApi.Models.Common;
 using HycoatApi.Models.MaterialInward;
+using HycoatApi.Services.Notifications;
+using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.MaterialInward;
@@ -13,16 +15,18 @@ public class IncomingInspectionService : IIncomingInspectionService
 {
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
-    private readonly IWebHostEnvironment _env;
+    private readonly IBlobStorageService _blobStorageService;
+    private readonly INotificationService _notificationService;
 
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/heic"];
     private const long MaxPhotoSizeBytes = 5 * 1024 * 1024;
 
-    public IncomingInspectionService(AppDbContext db, IMapper mapper, IWebHostEnvironment env)
+    public IncomingInspectionService(AppDbContext db, IMapper mapper, IBlobStorageService blobStorageService, INotificationService notificationService)
     {
         _db = db;
         _mapper = mapper;
-        _env = env;
+        _blobStorageService = blobStorageService;
+        _notificationService = notificationService;
     }
 
     public async Task<PagedResponse<IncomingInspectionDto>> GetAllAsync(
@@ -215,6 +219,18 @@ public class IncomingInspectionService : IIncomingInspectionService
 
         await _db.SaveChangesAsync();
 
+        // Fire buffing notifications to Production and Sales if any line requires buffing
+        var buffingLines = dto.Lines.Where(l => l.BuffingRequired).ToList();
+        if (buffingLines.Count > 0)
+        {
+            var totalCharge = buffingLines.Sum(l => l.BuffingCharge ?? 0m);
+            var title = "Buffing Required";
+            var message = $"Inspection {entity.InspectionNumber} for {inward.Customer.Name} — " +
+                          $"{buffingLines.Count} item(s) require buffing. Total charges: \u20b9{totalCharge:N2}.";
+            await _notificationService.NotifyDepartmentAsync("Production", title, message, "warning", "IncomingInspection", entity.Id, "IncomingInspection");
+            await _notificationService.NotifyDepartmentAsync("Sales", title, message, "warning", "IncomingInspection", entity.Id, "IncomingInspection");
+        }
+
         return new IncomingInspectionDto
         {
             Id = entity.Id,
@@ -305,11 +321,6 @@ public class IncomingInspectionService : IIncomingInspectionService
         var entity = await _db.IncomingInspections.FindAsync(id)
             ?? throw new KeyNotFoundException($"Incoming Inspection with ID {id} not found.");
 
-        var uploadsDir = Path.Combine(
-            _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"),
-            "uploads", "incoming-inspection", id.ToString());
-        Directory.CreateDirectory(uploadsDir);
-
         var result = new List<FileAttachmentDto>();
 
         foreach (var file in files)
@@ -321,18 +332,12 @@ public class IncomingInspectionService : IIncomingInspectionService
                 throw new ArgumentException($"File '{file.FileName}' has unsupported type. Allowed: JPEG, PNG, WebP, HEIC.");
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsDir, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var storedPath = $"/uploads/incoming-inspection/{id}/{fileName}";
+            var blobName = $"uploads/incoming-inspection/{id}/{fileName}";
+            var uploadResult = await _blobStorageService.UploadAsync(file, blobName);
             var attachment = new FileAttachment
             {
                 FileName = file.FileName,
-                StoredPath = storedPath,
+                StoredPath = uploadResult.BlobUrl,
                 ContentType = file.ContentType,
                 FileSizeBytes = file.Length,
                 EntityType = "IncomingInspection",

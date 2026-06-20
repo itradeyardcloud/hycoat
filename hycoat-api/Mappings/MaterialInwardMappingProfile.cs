@@ -2,6 +2,7 @@ using AutoMapper;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.MaterialInward;
 using HycoatApi.Models.Common;
+using HycoatApi.Models.MaterialInward;
 
 namespace HycoatApi.Mappings;
 
@@ -19,9 +20,13 @@ public class MaterialInwardMappingProfile : Profile
             .ForMember(d => d.CustomerName, opt => opt.MapFrom(s => s.Customer.Name))
             .ForMember(d => d.WONumber, opt => opt.MapFrom(s => s.WorkOrder != null ? s.WorkOrder.WONumber : null))
             .ForMember(d => d.ProcessTypeName, opt => opt.MapFrom(s => s.ProcessType != null ? s.ProcessType.Name : null))
-            .ForMember(d => d.PowderColorName, opt => opt.MapFrom(s => s.PowderColor != null ? s.PowderColor.ColorName : null))
+            .ForMember(d => d.PowderColors, opt => opt.MapFrom(s => s.PowderColors))
             .ForMember(d => d.ReceivedByName, opt => opt.MapFrom(s => s.ReceivedByUser != null ? s.ReceivedByUser.FullName : null))
             .ForMember(d => d.LineCount, opt => opt.MapFrom(s => s.Lines.Count));
+
+        CreateMap<MaterialInwardPowderColor, MaterialInwardPowderColorDto>()
+            .ForMember(d => d.ColorName, opt => opt.MapFrom(s => s.PowderColor.ColorName))
+            .ForMember(d => d.PowderCode, opt => opt.MapFrom(s => s.PowderColor.PowderCode));
 
         CreateMap<Models.MaterialInward.MaterialInwardLine, MaterialInwardLineDto>()
             .ForMember(d => d.SectionNumber, opt => opt.MapFrom(s => s.SectionProfile.SectionNumber));

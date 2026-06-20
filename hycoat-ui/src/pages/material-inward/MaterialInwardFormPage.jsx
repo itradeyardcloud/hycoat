@@ -61,7 +61,7 @@ const schema = z.object({
   vehicleNumber: z.string().max(50).optional().or(z.literal('')),
   unloadingLocation: z.string().max(200).optional().or(z.literal('')),
   processTypeId: z.number().nullable().optional(),
-  powderColorId: z.number().nullable().optional(),
+  powderColorIds: z.array(z.number().int().min(1)).optional().default([]),
   notes: z.string().max(2000).optional().or(z.literal('')),
   lines: z.array(lineSchema).min(1, 'At least one line is required'),
 });
@@ -85,7 +85,7 @@ const defaultValues = {
   vehicleNumber: '',
   unloadingLocation: '',
   processTypeId: null,
-  powderColorId: null,
+  powderColorIds: [],
   notes: '',
   lines: [{ ...defaultLine }],
 };
@@ -118,9 +118,15 @@ export default function MaterialInwardFormPage() {
 
   const woOptions = workOrders?.data ?? [];
   const customerOptions = customers?.data ?? [];
-  const sectionOptions = sections?.data ?? [];
+  const sectionOptions = (sections?.data ?? []).map((s) => ({
+    ...s,
+    name: s.name ?? s.sectionNumber ?? '',
+  }));
   const processTypeOptions = processTypes?.data ?? [];
-  const powderColorOptions = powderColors?.data ?? [];
+  const powderColorOptions = (powderColors?.data ?? []).map((pc) => ({
+    ...pc,
+    name: pc.name ?? pc.colorName ?? pc.powderCode ?? '',
+  }));
 
   const {
     control,
@@ -151,7 +157,7 @@ export default function MaterialInwardFormPage() {
         vehicleNumber: existingData.vehicleNumber ?? '',
         unloadingLocation: existingData.unloadingLocation ?? '',
         processTypeId: existingData.processTypeId ?? null,
-        powderColorId: existingData.powderColorId ?? null,
+        powderColorIds: existingData.powderColors?.map((c) => c.powderColorId) ?? [],
         notes: existingData.notes ?? '',
         lines:
           existingData.lines?.map((l) => ({
@@ -172,7 +178,7 @@ export default function MaterialInwardFormPage() {
       setValue('workOrderId', wo.id);
       setValue('customerId', wo.customerId);
       setValue('processTypeId', wo.processTypeId);
-      setValue('powderColorId', wo.powderColorId ?? null);
+      setValue('powderColorIds', wo.powderColorId ? [wo.powderColorId] : []);
     } else {
       setValue('workOrderId', null);
     }
@@ -185,7 +191,7 @@ export default function MaterialInwardFormPage() {
       ...data,
       workOrderId: data.workOrderId || null,
       processTypeId: data.processTypeId || null,
-      powderColorId: data.powderColorId || null,
+      powderColorIds: data.powderColorIds ?? [],
       customerDCDate: data.customerDCDate || null,
       weightKg: data.weightKg || null,
       lines: data.lines.map((l) => ({
@@ -351,21 +357,64 @@ export default function MaterialInwardFormPage() {
             />
           </Grid>
 
-          {/* Powder Color */}
-          <Grid size={{ xs: 12, sm: 4 }}>
+          {/* Powder Colors */}
+          <Grid size={12}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.secondary">
+                Powder Color(s)
+              </Typography>
+              <Controller
+                name="powderColorIds"
+                control={control}
+                render={({ field }) => (
+                  <Button
+                    size="small"
+                    startIcon={<Add />}
+                    onClick={() => field.onChange([...field.value, 0])}
+                  >
+                    Add Color
+                  </Button>
+                )}
+              />
+            </Box>
             <Controller
-              name="powderColorId"
+              name="powderColorIds"
               control={control}
               render={({ field }) => (
-                <Autocomplete
-                  size="small"
-                  options={powderColorOptions}
-                  getOptionLabel={(o) => o.name}
-                  value={powderColorOptions.find((pc) => pc.id === field.value) ?? null}
-                  onChange={(_, val) => field.onChange(val?.id ?? null)}
-                  renderInput={(params) => <TextField {...params} label="Powder Color" />}
-                  isOptionEqualToValue={(opt, val) => opt.id === val.id}
-                />
+                <Stack spacing={1}>
+                  {field.value.length === 0 && (
+                    <Typography variant="caption" color="text.disabled">
+                      No powder colors added (optional)
+                    </Typography>
+                  )}
+                  {field.value.map((colorId, idx) => (
+                    <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Autocomplete
+                        size="small"
+                        sx={{ flex: 1 }}
+                        options={powderColorOptions}
+                        getOptionLabel={(o) => o.name}
+                        value={powderColorOptions.find((pc) => pc.id === colorId) ?? null}
+                        onChange={(_, val) => {
+                          const updated = [...field.value];
+                          updated[idx] = val?.id ?? 0;
+                          field.onChange(updated);
+                        }}
+                        renderInput={(params) => <TextField {...params} label={`Color ${idx + 1}`} />}
+                        isOptionEqualToValue={(opt, val) => opt.id === val.id}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const updated = field.value.filter((_, i) => i !== idx);
+                          field.onChange(updated);
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Stack>
               )}
             />
           </Grid>
