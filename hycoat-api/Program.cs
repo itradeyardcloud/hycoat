@@ -140,6 +140,9 @@ builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IProcessTypeService, ProcessTypeService>();
 builder.Services.AddScoped<IProductionUnitService, ProductionUnitService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.Configure<WhatsAppCloudApiOptions>(builder.Configuration.GetSection("WhatsAppCloudApi"));
+builder.Services.AddHttpClient("MetaWhatsApp");
+builder.Services.AddScoped<IWhatsAppNotificationService, WhatsAppNotificationService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IFileService, FileService>();
 

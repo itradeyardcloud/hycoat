@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.Planning;
 using HycoatApi.Models.Planning;
+using HycoatApi.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Planning;
@@ -13,6 +14,7 @@ public class ProductionWorkOrderService : IProductionWorkOrderService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly IProductionTimeCalcService _timeCalcService;
+    private readonly IWhatsAppNotificationService _whatsAppNotificationService;
 
     private static readonly Dictionary<string, string[]> StatusTransitions = new()
     {
@@ -21,11 +23,16 @@ public class ProductionWorkOrderService : IProductionWorkOrderService
         ["InProgress"] = ["Complete"],
     };
 
-    public ProductionWorkOrderService(AppDbContext db, IMapper mapper, IProductionTimeCalcService timeCalcService)
+    public ProductionWorkOrderService(
+        AppDbContext db,
+        IMapper mapper,
+        IProductionTimeCalcService timeCalcService,
+        IWhatsAppNotificationService whatsAppNotificationService)
     {
         _db = db;
         _mapper = mapper;
         _timeCalcService = timeCalcService;
+        _whatsAppNotificationService = whatsAppNotificationService;
     }
 
     public async Task<PagedResponse<ProductionWorkOrderDto>> GetAllAsync(
@@ -377,7 +384,10 @@ public class ProductionWorkOrderService : IProductionWorkOrderService
 
     public async Task UpdateStatusAsync(int id, UpdatePWOStatusDto dto, string userId)
     {
-        var pwo = await _db.ProductionWorkOrders.FindAsync(id)
+        var pwo = await _db.ProductionWorkOrders
+            .Include(p => p.Customer)
+            .Include(p => p.WorkOrder)
+            .FirstOrDefaultAsync(p => p.Id == id)
             ?? throw new KeyNotFoundException($"Production Work Order with ID {id} not found.");
 
         if (!StatusTransitions.TryGetValue(pwo.Status, out var allowed) || !allowed.Contains(dto.Status))
@@ -388,6 +398,14 @@ public class ProductionWorkOrderService : IProductionWorkOrderService
         pwo.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        await _whatsAppNotificationService.SendStatusUpdateAsync(
+            pwo.Customer?.Phone,
+            pwo.Customer?.Name ?? "Customer",
+            pwo.WorkOrder?.WONumber ?? pwo.PWONumber,
+            dto.Status,
+            "Production Work Order",
+            pwo.PWONumber);
     }
 
     public async Task DeleteAsync(int id, string userId)

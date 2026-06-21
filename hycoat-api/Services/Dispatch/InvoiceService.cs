@@ -3,6 +3,7 @@ using HycoatApi.Data;
 using HycoatApi.DTOs;
 using HycoatApi.DTOs.Dispatch;
 using HycoatApi.Models.Dispatch;
+using HycoatApi.Services.Notifications;
 using HycoatApi.Services.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +14,18 @@ public class InvoiceService : IInvoiceService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly IConfiguration _config;
+    private readonly IWhatsAppNotificationService _whatsAppNotificationService;
 
-    public InvoiceService(AppDbContext db, IMapper mapper, IConfiguration config)
+    public InvoiceService(
+        AppDbContext db,
+        IMapper mapper,
+        IConfiguration config,
+        IWhatsAppNotificationService whatsAppNotificationService)
     {
         _db = db;
         _mapper = mapper;
         _config = config;
+        _whatsAppNotificationService = whatsAppNotificationService;
     }
 
     public async Task<PagedResponse<InvoiceDto>> GetAllAsync(
@@ -354,6 +361,14 @@ public class InvoiceService : IInvoiceService
         invoice.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        await _whatsAppNotificationService.SendStatusUpdateAsync(
+            invoice.Customer?.Phone,
+            invoice.Customer?.Name ?? "Customer",
+            invoice.WorkOrder?.WONumber ?? invoice.InvoiceNumber,
+            status,
+            "Invoice",
+            invoice.InvoiceNumber);
 
         return _mapper.Map<InvoiceDto>(invoice);
     }

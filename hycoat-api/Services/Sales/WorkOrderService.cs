@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Common;
 using HycoatApi.DTOs.Sales;
 using HycoatApi.Models.Sales;
+using HycoatApi.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace HycoatApi.Services.Sales;
@@ -12,6 +13,7 @@ public class WorkOrderService : IWorkOrderService
 {
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
+    private readonly IWhatsAppNotificationService _whatsAppNotificationService;
 
     private static readonly Dictionary<string, string[]> StatusTransitions = new()
     {
@@ -24,10 +26,14 @@ public class WorkOrderService : IWorkOrderService
         ["Invoiced"] = ["Closed"],
     };
 
-    public WorkOrderService(AppDbContext db, IMapper mapper)
+    public WorkOrderService(
+        AppDbContext db,
+        IMapper mapper,
+        IWhatsAppNotificationService whatsAppNotificationService)
     {
         _db = db;
         _mapper = mapper;
+        _whatsAppNotificationService = whatsAppNotificationService;
     }
 
     public async Task<PagedResponse<WorkOrderDto>> GetAllAsync(
@@ -243,7 +249,9 @@ public class WorkOrderService : IWorkOrderService
 
     public async Task UpdateStatusAsync(int id, UpdateWorkOrderStatusDto dto, string userId)
     {
-        var wo = await _db.WorkOrders.FindAsync(id)
+        var wo = await _db.WorkOrders
+            .Include(w => w.Customer)
+            .FirstOrDefaultAsync(w => w.Id == id)
             ?? throw new KeyNotFoundException($"Work Order with ID {id} not found.");
 
         if (!StatusTransitions.TryGetValue(wo.Status, out var allowed) || !allowed.Contains(dto.Status))
@@ -255,6 +263,14 @@ public class WorkOrderService : IWorkOrderService
         wo.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        await _whatsAppNotificationService.SendStatusUpdateAsync(
+            wo.Customer?.Phone,
+            wo.Customer?.Name ?? "Customer",
+            wo.WONumber,
+            dto.Status,
+            "Work Order",
+            wo.WONumber);
     }
 
     public async Task DeleteAsync(int id, string userId)

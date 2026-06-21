@@ -4,6 +4,7 @@ using HycoatApi.DTOs;
 using HycoatApi.DTOs.Dispatch;
 using HycoatApi.Models.Common;
 using HycoatApi.Models.Dispatch;
+using HycoatApi.Services.Notifications;
 using HycoatApi.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +15,18 @@ public class DeliveryChallanService : IDeliveryChallanService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly IBlobStorageService _blobStorageService;
+    private readonly IWhatsAppNotificationService _whatsAppNotificationService;
 
-    public DeliveryChallanService(AppDbContext db, IMapper mapper, IBlobStorageService blobStorageService)
+    public DeliveryChallanService(
+        AppDbContext db,
+        IMapper mapper,
+        IBlobStorageService blobStorageService,
+        IWhatsAppNotificationService whatsAppNotificationService)
     {
         _db = db;
         _mapper = mapper;
         _blobStorageService = blobStorageService;
+        _whatsAppNotificationService = whatsAppNotificationService;
     }
 
     public async Task<PagedResponse<DeliveryChallanDto>> GetAllAsync(
@@ -242,6 +249,14 @@ public class DeliveryChallanService : IDeliveryChallanService
         dc.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        await _whatsAppNotificationService.SendStatusUpdateAsync(
+            dc.Customer?.Phone,
+            dc.Customer?.Name ?? "Customer",
+            dc.WorkOrder?.WONumber ?? dc.DCNumber,
+            status,
+            "Delivery Challan",
+            dc.DCNumber);
 
         return _mapper.Map<DeliveryChallanDto>(dc);
     }
