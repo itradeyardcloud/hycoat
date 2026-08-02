@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Autocomplete,
   Box,
   Button,
+  Checkbox,
   TextField,
   IconButton,
   Tooltip,
@@ -18,6 +18,9 @@ import {
   DialogTitle,
   CircularProgress,
   Divider,
+  MenuItem,
+  Paper,
+  Popper,
   Stack,
   InputAdornment,
 } from '@mui/material';
@@ -163,6 +166,8 @@ export default function ProfileDiagramsPage() {
   const [suggestInput, setSuggestInput] = useState('');
   const [lightboxDiagram, setLightboxDiagram] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchAnchorRef = useRef(null);
 
   // Management table state
   const [search, setSearch] = useState('');
@@ -177,7 +182,16 @@ export default function ProfileDiagramsPage() {
   const { data: suggestData, isFetching: suggestLoading } =
     useProfileDiagramSuggest(debouncedSuggestInput);
 
-  const suggestions = suggestData?.data?.items ?? [];
+  const apiSuggestions = suggestData?.data?.items ?? [];
+
+  // When input is empty show already-selected profiles so they are visible on open.
+  // When typing, merge selected profiles at the top then API results (deduped).
+  const suggestions = useMemo(() => {
+    if (!debouncedSuggestInput) return selectedProfiles;
+    const selectedIds = new Set(selectedProfiles.map((p) => p.id));
+    const extra = apiSuggestions.filter((s) => !selectedIds.has(s.id));
+    return [...selectedProfiles, ...extra];
+  }, [debouncedSuggestInput, apiSuggestions, selectedProfiles]);
 
   // Management table query
   const { data: tableData, isLoading: tableLoading } = useProfileDiagrams({
@@ -321,70 +335,73 @@ export default function ProfileDiagramsPage() {
         </Typography>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mt={1.5} alignItems="flex-start">
-          <Autocomplete
-            multiple
-            fullWidth
-            options={suggestions}
-            getOptionLabel={(option) => option.code}
-            renderOption={(props, option) => (
-              <li {...props} key={option.id}>
-                <Box>
-                  <Typography variant="body2" fontWeight="bold">
-                    {option.code}
-                  </Typography>
-                  {(option.system || option.category) && (
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      {[option.system, option.category].filter(Boolean).join(' · ')}
+          <Box ref={searchAnchorRef} sx={{ flex: 1, minWidth: 0 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search by code, family, series…"
+              value={suggestInput}
+              onChange={(e) => setSuggestInput(e.target.value)}
+              onFocus={() => setDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" />
+                  </InputAdornment>
+                ),
+                endAdornment: suggestLoading ? <CircularProgress size={14} sx={{ mr: 1 }} /> : null,
+              }}
+            />
+            <Popper
+              open={dropdownOpen}
+              anchorEl={searchAnchorRef.current}
+              placement="bottom-start"
+              sx={{ zIndex: 1300 }}
+              style={{ width: searchAnchorRef.current?.offsetWidth ?? 'auto' }}
+            >
+              <Paper elevation={4} sx={{ maxHeight: 360, overflowY: 'auto', mt: 0.5 }}>
+                {suggestions.length === 0 ? (
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {debouncedSuggestInput.length < 1 ? 'Type to search…' : 'No profiles found'}
                     </Typography>
-                  )}
-                </Box>
-              </li>
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  variant="outlined"
-                  label={option.code}
-                  size="small"
-                  {...getTagProps({ index })}
-                  key={option.id}
-                />
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                size="small"
-                placeholder={selectedProfiles.length === 0 ? 'Search by code, family, series…' : ''}
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <>
-                      <InputAdornment position="start">
-                        <Search fontSize="small" />
-                      </InputAdornment>
-                      {params.InputProps.startAdornment}
-                    </>
-                  ),
-                  endAdornment: (
-                    <>
-                      {suggestLoading && <CircularProgress size={14} sx={{ mr: 1 }} />}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            value={selectedProfiles}
-            onChange={(_, newValue) => setSelectedProfiles(newValue)}
-            inputValue={suggestInput}
-            onInputChange={(_, val) => setSuggestInput(val)}
-            filterOptions={(x) => x}
-            isOptionEqualToValue={(opt, val) => opt.id === val.id}
-            noOptionsText={
-              debouncedSuggestInput.length < 1 ? 'Type to search…' : 'No profiles found'
-            }
-          />
+                  </Box>
+                ) : (
+                  suggestions.map((option) => (
+                    <MenuItem
+                      key={option.id}
+                      dense
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() =>
+                        setSelectedProfiles((prev) =>
+                          prev.some((p) => p.id === option.id)
+                            ? prev.filter((p) => p.id !== option.id)
+                            : [...prev, option],
+                        )
+                      }
+                    >
+                      <Checkbox
+                        checked={selectedProfiles.some((p) => p.id === option.id)}
+                        size="small"
+                        sx={{ p: 0.5, mr: 1 }}
+                      />
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          {option.code}
+                        </Typography>
+                        {(option.system || option.category) && (
+                          <Typography variant="caption" color="text.secondary" display="block">
+                            {[option.system, option.category].filter(Boolean).join(' · ')}
+                          </Typography>
+                        )}
+                      </Box>
+                    </MenuItem>
+                  ))
+                )}
+              </Paper>
+            </Popper>
+          </Box>
           {selectedProfiles.length > 0 && (
             <Button
               variant="outlined"
@@ -397,6 +414,24 @@ export default function ProfileDiagramsPage() {
             </Button>
           )}
         </Stack>
+
+        {/* Selected chips strip */}
+        {selectedProfiles.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1.5 }}>
+            {selectedProfiles.map((profile, index) => (
+              <Chip
+                key={profile.id}
+                label={profile.code}
+                size="small"
+                onDelete={() => {
+                  const next = [...selectedProfiles];
+                  next.splice(index, 1);
+                  setSelectedProfiles(next);
+                }}
+              />
+            ))}
+          </Box>
+        )}
 
         {/* Gallery grid */}
         {selectedProfiles.length > 0 && (
