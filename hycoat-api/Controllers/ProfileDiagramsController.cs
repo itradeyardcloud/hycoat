@@ -58,18 +58,16 @@ public class ProfileDiagramsController : ControllerBase
         var result = await _service.GetAllAsync(search, page, pageSize, sortBy, sortDesc, ct);
         return Ok(ApiResponse<PagedResponse<ProfileDiagramDto>>.Ok(result));
         }
-        catch (Exception ex)
-        {
-
-    return Results.Json(new
+       catch (Exception ex)
+{
+    return StatusCode(StatusCodes.Status500InternalServerError, new
     {
         success = false,
         message = ex.Message,
         innerException = ex.InnerException?.Message,
         stackTrace = ex.StackTrace
-    }, statusCode: 500);
-
-        }
+    });
+}
     }
 
     [HttpGet("{id:int}")]
