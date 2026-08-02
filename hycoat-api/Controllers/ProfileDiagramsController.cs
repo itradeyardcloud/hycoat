@@ -60,8 +60,7 @@ public class ProfileDiagramsController : ControllerBase
         }
         catch (Exception ex)
         {
-            catch (Exception ex)
-{
+
     return Results.Json(new
     {
         success = false,
@@ -69,7 +68,7 @@ public class ProfileDiagramsController : ControllerBase
         innerException = ex.InnerException?.Message,
         stackTrace = ex.StackTrace
     }, statusCode: 500);
-}
+
         }
     }
 
