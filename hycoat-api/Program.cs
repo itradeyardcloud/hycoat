@@ -194,7 +194,11 @@ builder.Services.AddScoped<ExcelExportService>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
-builder.Services.Configure<AzureBlobStorageOptions>(builder.Configuration.GetSection("AzureBlobStorage"));
+builder.Services.Configure<AzureBlobStorageOptions>(new AzureBlobStorageOptions(){
+    ConnectionString="DefaultEndpointsProtocol=https;AccountName=hycoatdevstcixco4d;AccountKey=pcOnzSh/3f/htSHotansZE3VWcxhuQEI2i0BiuzJQVa7vqijCPogZpTNDAjbOlqDaqsDAoGbVniu+AStKlY03Q==;EndpointSuffix=core.windows.net",
+    ContainerName="hycoat-files",
+    CreateContainerIfNotExists=true
+});
 builder.Services.AddSingleton(sp =>
 {
     var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AzureBlobStorageOptions>>().Value;
