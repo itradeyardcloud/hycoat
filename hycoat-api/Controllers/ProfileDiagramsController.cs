@@ -35,6 +35,7 @@ public class ProfileDiagramsController : ControllerBase
         [FromQuery] bool sortDesc = false,
         CancellationToken ct = default)
     {
+        try{
         // When codes param is provided, return exact-code lookup (for gallery)
         if (!string.IsNullOrWhiteSpace(codes))
         {
@@ -56,6 +57,20 @@ public class ProfileDiagramsController : ControllerBase
 
         var result = await _service.GetAllAsync(search, page, pageSize, sortBy, sortDesc, ct);
         return Ok(ApiResponse<PagedResponse<ProfileDiagramDto>>.Ok(result));
+        }
+        catch (Exception ex)
+        {
+            catch (Exception ex)
+{
+    return Results.Json(new
+    {
+        success = false,
+        message = ex.Message,
+        innerException = ex.InnerException?.Message,
+        stackTrace = ex.StackTrace
+    }, statusCode: 500);
+}
+        }
     }
 
     [HttpGet("{id:int}")]
