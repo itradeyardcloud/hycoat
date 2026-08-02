@@ -21,6 +21,8 @@ const VendorsPage = lazy(() => import('./pages/masters/VendorsPage'));
 const VendorFormPage = lazy(() => import('./pages/masters/VendorFormPage'));
 const ProcessTypesPage = lazy(() => import('./pages/masters/ProcessTypesPage'));
 const ProductionUnitsPage = lazy(() => import('./pages/masters/ProductionUnitsPage'));
+const ProfileDiagramsPage = lazy(() => import('./pages/masters/ProfileDiagramsPage'));
+const ProfileDiagramFormPage = lazy(() => import('./pages/masters/ProfileDiagramFormPage'));
 const AuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'));
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 
@@ -136,6 +138,9 @@ function App() {
               <Route path="/masters/vendors/:id/edit" element={<VendorFormPage />} />
               <Route path="/masters/process-types" element={<ProcessTypesPage />} />
               <Route path="/masters/production-units" element={<ProductionUnitsPage />} />
+              <Route path="/masters/profile-diagrams" element={<ProfileDiagramsPage />} />
+              <Route path="/masters/profile-diagrams/new" element={<ProfileDiagramFormPage />} />
+              <Route path="/masters/profile-diagrams/:id/edit" element={<ProfileDiagramFormPage />} />
             </Route>
 
             {/* Sales */}

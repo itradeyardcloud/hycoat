@@ -139,6 +139,7 @@ builder.Services.AddScoped<IPowderColorService, PowderColorService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IProcessTypeService, ProcessTypeService>();
 builder.Services.AddScoped<IProductionUnitService, ProductionUnitService>();
+builder.Services.AddScoped<IProfileDiagramService, ProfileDiagramService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IFileService, FileService>();

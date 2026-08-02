@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "extract-profiles",
+  "version": "1.0.0",
+  "scripts": {
+    "extract": "node extract.mjs",
+    "upload": "node upload.mjs",
+    "run-all": "node extract.mjs && node upload.mjs"
+  },
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "mupdf": "^1.28.0"
+  }
+}

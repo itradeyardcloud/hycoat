@@ -33,6 +33,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
     public DbSet<PowderColor> PowderColors => Set<PowderColor>();
     public DbSet<ProcessType> ProcessTypes => Set<ProcessType>();
     public DbSet<ProductionUnit> ProductionUnits => Set<ProductionUnit>();
+    public DbSet<ProfileDiagram> ProfileDiagrams => Set<ProfileDiagram>();
 
     // Sales
     public DbSet<Inquiry> Inquiries => Set<Inquiry>();

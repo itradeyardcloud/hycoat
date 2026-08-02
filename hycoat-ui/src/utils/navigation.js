@@ -30,6 +30,7 @@ export const navigationItems = [
       { label: 'Powder Colors', path: '/masters/powder-colors' },
       { label: 'Vendors', path: '/masters/vendors' },
       { label: 'Process Types', path: '/masters/process-types' },
+      { label: 'Profile Diagrams', path: '/masters/profile-diagrams' },
     ],
   },
   {

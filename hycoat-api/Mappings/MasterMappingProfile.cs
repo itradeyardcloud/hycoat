@@ -41,6 +41,12 @@ public class MasterMappingProfile : Profile
         CreateMap<Vendor, VendorDetailDto>();
         CreateMap<Vendor, LookupDto>();
 
+        // ProfileDiagram
+        CreateMap<CreateProfileDiagramDto, ProfileDiagram>();
+        CreateMap<UpdateProfileDiagramDto, ProfileDiagram>();
+        CreateMap<ProfileDiagram, ProfileDiagramDto>();
+        CreateMap<ProfileDiagram, ProfileDiagramDetailDto>();
+
         // ProcessType
         CreateMap<CreateProcessTypeDto, ProcessType>();
         CreateMap<UpdateProcessTypeDto, ProcessType>();
